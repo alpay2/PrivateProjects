@@ -555,8 +555,13 @@ public final class ChampionsLeague {
                 teamGDL.add(i, teamGD.value(teamLine.get(i)));
             }
 
-            // make arraylist of GD, sorted
-            // make placement based on sorted GD and GD Map
+            // ArrayList teamLine is sorted based on lowest to highest points
+            // ArrayList teamGDL is sorted based on each team's GD in order of teamLine
+            // Map teamPntsF has team key and team points value
+
+            // make loop that checks indexes of teamLine with points
+            // if points are same, compare goal differences
+            // make new arraylist and sort in order of team points and team GD
 
             String point1 = concatS("points", team1Point);
             String point2 = concatS("points", team2Point);
