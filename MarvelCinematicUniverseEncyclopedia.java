@@ -72,7 +72,7 @@ public final class MarvelCinematicUniverse {
     //Wakanda
     public static Sequence<String> MBaku() {
         Sequence<String> black = new Sequence1L<>();
-        black.add(0, "M'Baku");
+        black.add(0, "None");
         black.add(1, "Wakanda");
         black.add(2,
                 "Head of the Gorilla tribe of Wakanda. Leads Gorilla army. Super strength");
@@ -81,7 +81,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Wkabi() {
         Sequence<String> black = new Sequence1L<>();
-        black.add(0, "W'Kabi");
+        black.add(0, "None");
         black.add(1, "Wakanda");
         black.add(2,
                 "Leads the rhino defense army of Wakanda. Super strength and endurance. Has horn that can summon rhinos to attack");
@@ -90,7 +90,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Okoye() {
         Sequence<String> black = new Sequence1L<>();
-        black.add(0, "Okoye");
+        black.add(0, "None");
         black.add(1, "Wakanda");
         black.add(2,
                 "Head Wakandan warrior. Leads Wakandan army. Outstanding hand to hand combat along with weapons use");
@@ -99,7 +99,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Nakia() {
         Sequence<String> black = new Sequence1L<>();
-        black.add(0, "Nakia");
+        black.add(0, "None");
         black.add(1, "Wakanda");
         black.add(2,
                 "Wakandan spy, outstanding reflexes and use of hand to hand combat");
@@ -108,7 +108,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Shuri() {
         Sequence<String> shuri = new Sequence1L<>();
-        shuri.add(0, "Shuri");
+        shuri.add(0, "None");
         shuri.add(1, "Wakanda");
         shuri.add(2,
                 "Exceptional knowledge of science and engineering. Able to perform in hand to hand combat.");
@@ -127,9 +127,10 @@ public final class MarvelCinematicUniverse {
     //Avengers
     public static Sequence<String> WarMachine() {
         Sequence<String> captain = new Sequence1L<>();
-        captain.add(0, "Steve Rogers");
+        captain.add(0, "Rhodey Rhodes");
         captain.add(1, "Avengers");
-        captain.add(2, "");
+        captain.add(2,
+                "Powers almost identical to Iron Man's, where War Machine has a engineered suit of weapons and can fly");
         return captain;
     }
 
@@ -153,7 +154,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Vision() {
         Sequence<String> captain = new Sequence1L<>();
-        captain.add(0, "Vision");
+        captain.add(0, "None");
         captain.add(1, "Avengers");
         captain.add(2,
                 "As an android, hero has superhuman stamina, reflexes, speed, agility and strength. Can pass through matter and can use power of the Mind Infinity Stone to shoot beams");
@@ -198,7 +199,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Thor() {
         Sequence<String> captain = new Sequence1L<>();
-        captain.add(0, "Thor");
+        captain.add(0, "None");
         captain.add(1, "Avengers");
         captain.add(2,
                 "Has ability to summon storm elements with hammer made of Asgardian metal. Can also fly, travel through time, and has superhuman strength");
@@ -320,6 +321,7 @@ public final class MarvelCinematicUniverse {
         return drax;
     }
 
+    //Hero Sets
     public static Set<String> avengerSet() {
         Sequence<String> a = Avengers();
         Set<String> hero = new Set1L<>();
@@ -358,6 +360,7 @@ public final class MarvelCinematicUniverse {
 
     }
 
+    //All heros set
     public static Set<String> Heroes() {
 
         Set<String> hero = new Set1L<>();
@@ -368,6 +371,7 @@ public final class MarvelCinematicUniverse {
         return hero;
     }
 
+    //Avengers associated with their bio
     public static Map<String, Sequence<String>> avengerMap() {
         Map<String, Sequence<String>> aMap = new Map1L<>();
         aMap.add("Captain America", Captain());
@@ -384,6 +388,7 @@ public final class MarvelCinematicUniverse {
         return aMap;
     }
 
+    //Defenders associated with their bio
     public static Map<String, Sequence<String>> defenderMap() {
         Map<String, Sequence<String>> dMap = new Map1L<>();
         dMap.add("Daredevil", Daredevil());
@@ -393,6 +398,7 @@ public final class MarvelCinematicUniverse {
         return dMap;
     }
 
+    //Guardians of the Galaxy associated with their bio
     public static Map<String, Sequence<String>> guardianMap() {
         Map<String, Sequence<String>> gMap = new Map1L<>();
         gMap.add("Star-Lord", Starlord());
@@ -404,6 +410,7 @@ public final class MarvelCinematicUniverse {
         return gMap;
     }
 
+    //Wakanda heroes associated with their bio
     public static Map<String, Sequence<String>> wakandaMap() {
         Map<String, Sequence<String>> wMap = new Map1L<>();
         wMap.add("Black Panther", BlackPanther());
@@ -415,6 +422,7 @@ public final class MarvelCinematicUniverse {
         return wMap;
     }
 
+    //All heroes associated with their bio
     public static Map<String, Sequence<String>> heroMap() {
         Map<String, Sequence<String>> hMap = new Map1L<>();
         hMap.combineWith(wakandaMap());
@@ -425,6 +433,7 @@ public final class MarvelCinematicUniverse {
     }
 
     public static void main(String[] args) {
+
         SimpleReader in = new SimpleReader1L();
         SimpleWriter out = new SimpleWriter1L();
         Map<String, Sequence<String>> heroes = heroMap();
@@ -571,9 +580,9 @@ public final class MarvelCinematicUniverse {
             out.println("Powers: " + heroes.value(hero).entry(2));
 
         }
-
         in.close();
         out.close();
+
     }
 
 }
