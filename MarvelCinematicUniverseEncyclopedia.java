@@ -227,7 +227,7 @@ public final class MarvelCinematicUniverse {
     //Defenders
     public static Sequence<String> LukeCage() {
         Sequence<String> luke = new Sequence1L<>();
-        luke.add(0, "Luke Cage");
+        luke.add(0, "None");
         luke.add(1, "Defenders");
         luke.add(2,
                 "Possesses superhuman strength and stamina. Bulletproof skin allows him to be virtually impossible to have physical injury");
@@ -245,7 +245,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Jessica() {
         Sequence<String> jessica = new Sequence1L<>();
-        jessica.add(0, "Jessica Jones");
+        jessica.add(0, "None");
         jessica.add(1, "Defenders");
         jessica.add(2,
                 "Possesses superhuman strength, as well as the ability to reject mind control. Exceptional investigator");
@@ -264,7 +264,7 @@ public final class MarvelCinematicUniverse {
     //Guardians of the Galaxy
     public static Sequence<String> Mantis() {
         Sequence<String> mantis = new Sequence1L<>();
-        mantis.add(0, "Mantis");
+        mantis.add(0, "None");
         mantis.add(1, "Guardians of the Galaxy");
         mantis.add(2,
                 "Ability to telepathically communicate and alter moods and feelings");
@@ -273,7 +273,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Rocket() {
         Sequence<String> rocket = new Sequence1L<>();
-        rocket.add(0, "Rocket Raccoon");
+        rocket.add(0, "None");
         rocket.add(1, "Guardians of the Galaxy");
         rocket.add(2,
                 "Amplified speed, acute sense of smell, sight, and hearing. Great use of firearms");
@@ -292,7 +292,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Groot() {
         Sequence<String> groot = new Sequence1L<>();
-        groot.add(0, "Groot");
+        groot.add(0, "None");
         groot.add(1, "Guardians of the Galaxy");
         groot.add(2,
                 "Can absorb wood as food, ability to regenerate. Has power to control trees and plants, has some resistance to fire");
@@ -303,7 +303,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Gamora() {
         Sequence<String> gamora = new Sequence1L<>();
-        gamora.add(0, "Gamora");
+        gamora.add(0, "None");
         gamora.add(1, "Guardians of the Galaxy");
         gamora.add(2,
                 "Superhuman strength and agility, accelerated healing, elite combat");
@@ -313,7 +313,7 @@ public final class MarvelCinematicUniverse {
 
     public static Sequence<String> Drax() {
         Sequence<String> drax = new Sequence1L<>();
-        drax.add(0, "Drax");
+        drax.add(0, "None");
         drax.add(1, "Guardians of the Galaxy");
         drax.add(2,
                 "Enhanced strength and resilience, flight, and the ability to project energy blasts from his hands");
