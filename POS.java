@@ -1,5 +1,7 @@
 import components.map.Map;
 import components.map.Map1L;
+import components.set.Set;
+import components.set.Set1L;
 import components.simplereader.SimpleReader;
 import components.simplereader.SimpleReader1L;
 import components.simplewriter.SimpleWriter;
@@ -412,50 +414,135 @@ public final class POS {
 
     }
 
+    public static Set<String> employees() {
+        Set<String> emp = new Set1L<>();
+        emp.add("Aytekin Alpay");
+        emp.add("John Doe");
+        emp.add("Bill Jones");
+        return emp;
+    }
+
+    public static Map<Integer, String> empMap(Set<String> emp) {
+        Map<Integer, String> map = new Map1L<>();
+
+        map.add(19372945, emp.removeAny());
+        map.add(73927483, emp.removeAny());
+        map.add(38719482, emp.removeAny());
+        return map;
+
+    }
+
     public static void main(String[] args) {
         SimpleReader in = new SimpleReader1L();
         SimpleWriter out = new SimpleWriter1L();
 
+        Map<Integer, String> clockedIn = new Map1L<>();
+        Map<Integer, String> empM = empMap(employees());
+
         out.println("Welcome to Aytekin's Store!");
         out.println("Options: ");
-        out.println("1. Purchase");
-        out.println("2. Return");
-        out.println("3. Find Price");
-        out.println("4. Total Sales");
+        out.println("1. Purchase (not available until clocked in)");
+        out.println("2. Return (not available until clocked in)");
+        out.println("3. Find Price (not available until clocked in)");
+        out.println("4. Total Sales (not available until clocked in)");
+        out.println("5. Clock In");
+        out.println("6. Clock Out (not available until clocked in)");
 
         int a = in.nextInteger();
-        double revenue = 0;
-        double profit = 0;
-        double returns = 0;
-
-        while (a != 0) {
-            if (a == 1) {
-                revenue += purchase(in, out);
-                profit += revenue;
-                profit = Math.round(profit * 100.0) / 100.0;
-            }
-            if (a == 2) {
-                returns += returns(in, out);
-                profit -= returns;
-                profit = Math.round(profit * 100.0) / 100.0;
-            }
-            if (a == 3) {
-                priceFinder(in, out);
-            }
-            if (a == 4) {
-                out.println("Total Revenue: $" + revenue);
-                out.println("Total Retruns: -$" + returns);
-                out.println("Total Profit: $" + profit);
-            }
-
-            out.println();
+        boolean clockIn = false;
+        while (a != 5) {
+            out.println("Need to clock in");
             out.println("Options: ");
             out.println("1. Purchase");
             out.println("2. Return");
             out.println("3. Find Price");
             out.println("4. Total Sales");
-            int choice = in.nextInteger();
-            a = choice;
+            out.println("5. Clock In");
+            out.println("6. Clock Out");
+            a = in.nextInteger();
+        }
+        if (a == 5 && !clockIn) {
+            out.println("Enter employee ID Number: ");
+            int clock = in.nextInteger();
+            while (!empM.hasKey(clock)) {
+                out.println("Not a valid employee ID");
+                out.println("Try again: ");
+                clock = in.nextInteger();
+            }
+            out.println("Welcome: " + empM.value(clock));
+            clockedIn.add(clock, empM.value(clock));
+            clockIn = true;
+        }
+
+        out.println();
+        out.println("Options: ");
+        out.println("1. Purchase");
+        out.println("2. Return");
+        out.println("3. Find Price");
+        out.println("4. Total Sales");
+        out.println("5. Clock In (already clocked in)");
+        out.println("6. Clock Out");
+        int aa = in.nextInteger();
+
+        while (clockIn) {
+
+            double revenue = 0;
+            double profit = 0;
+            double returns = 0;
+
+            while (aa != 6) {
+                if (aa == 1) {
+                    revenue += purchase(in, out);
+                    profit += revenue;
+                    profit = Math.round(profit * 100.0) / 100.0;
+                } else if (aa == 2) {
+                    returns += returns(in, out);
+                    profit -= returns;
+                    profit = Math.round(profit * 100.0) / 100.0;
+                } else if (aa == 3) {
+                    priceFinder(in, out);
+                } else if (aa == 4) {
+                    out.println("Total Revenue: $" + revenue);
+                    out.println("Total Retruns: -$" + returns);
+                    out.println("Total Profit: $" + profit);
+                } else if (aa == 5) {
+                    out.println("Already clocked in");
+                } else {
+                    out.println("Not a viable option");
+                }
+
+                out.println();
+                out.println("Options: ");
+                out.println("1. Purchase");
+                out.println("2. Return");
+                out.println("3. Find Price");
+                out.println("4. Total Sales");
+                out.println("5. Clock In");
+                out.println("6. Clock Out");
+
+                aa = in.nextInteger();
+
+            }
+
+            if (clockedIn.size() > 0) {
+                out.println("Enter employee ID number: ");
+                int clockOut = in.nextInteger();
+
+                while (!clockedIn.hasKey(clockOut) && empM.hasKey(clockOut)) {
+                    out.println(empM.value(clockOut) + " did not clock in");
+                    out.println("Try again: ");
+                    clockOut = in.nextInteger();
+                }
+                while (!empM.hasKey(clockOut)) {
+                    out.println(clockOut + " Not a viable employee ID");
+                    out.println("Try again: ");
+                    clockOut = in.nextInteger();
+                }
+                out.println("Goodbye! Thank you " + clockedIn.remove(clockOut));
+            } else {
+                clockIn = false;
+            }
+
         }
         in.close();
         out.close();
