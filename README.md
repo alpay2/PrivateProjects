@@ -11,4 +11,6 @@ The projects that are available currently are:
 
 3- (in progress) ChampionsLeagie.java: An interactive simulator of the UEFA Champions League, with settings to be custom made or associated with the 2018/19 Champions League
 
+4- (in progress) NBA_Playoffs: An interactive simulator of the NBA Playoffs
+
 Hope you enjoy!
