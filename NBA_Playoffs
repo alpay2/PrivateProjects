@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collections;
 
 import components.map.Map;
 import components.map.Map1L;
@@ -13,7 +12,7 @@ import components.simplewriter.SimpleWriter1L;
 /**
  * Put a short phrase describing the program here.
  *
- * @author Put your name here
+ * @author Aytekin Alpay
  *
  */
 public final class Playoffs {
@@ -38,7 +37,7 @@ public final class Playoffs {
         return teams;
     }
 
-    public static Map<Integer, String> westSeeds(Set<String> teams,
+    public static Map<Integer, String> chooseWestSeeds(Set<String> teams,
             SimpleReader in, SimpleWriter out) {
         Map<Integer, String> west = new Map1L<>();
 
@@ -64,6 +63,14 @@ public final class Playoffs {
         return west;
     }
 
+    public static Map<Integer, String> autoWestSeeds(Set<String> teams) {
+        Map<Integer, String> seeds = new Map1L<>();
+        for (int i = 1; i <= 8; i++) {
+            seeds.add(i, teams.removeAny());
+        }
+        return seeds;
+    }
+
     public static Set<String> eastTeams() {
         Set<String> teams = new Set1L<>();
         teams.add("Cleveland Cavaliers");
@@ -84,7 +91,7 @@ public final class Playoffs {
         return teams;
     }
 
-    public static Map<Integer, String> eastSeeds(Set<String> teams,
+    public static Map<Integer, String> chooseEastSeeds(Set<String> teams,
             SimpleReader in, SimpleWriter out) {
         Map<Integer, String> east = new Map1L<>();
         for (int i = 1; i <= 8; i++) {
@@ -107,226 +114,408 @@ public final class Playoffs {
         return east;
     }
 
+    public static Map<Integer, String> autoEastSeeds(Set<String> teams) {
+        Map<Integer, String> seeds = new Map1L<>();
+        for (int i = 1; i <= 8; i++) {
+            seeds.add(i, teams.removeAny());
+        }
+        return seeds;
+    }
+
+    public static int parser(String intg, SimpleReader in, SimpleWriter out) {
+        for (int a = 0; a < intg.length(); a++) {
+            while (!(intg.charAt(a) == '1') && !(intg.charAt(a) == '2')
+                    && !(intg.charAt(a) == '3') && !(intg.charAt(a) == '4')
+                    && !(intg.charAt(a) == '5') && !(intg.charAt(a) == '6')
+                    && !(intg.charAt(a) == '7') && !(intg.charAt(a) == '8')
+                    && !(intg.charAt(a) == '9') && !(intg.charAt(a) == '0')) {
+                out.println(
+                        "Not a valid score. Must be a whole positive number: ");
+                String redo = in.nextLine();
+                intg = redo;
+            }
+        }
+
+        return Integer.parseInt(intg);
+    }
+
+    public static int series(int i, int lower, String homeT, String awayT,
+            SimpleWriter out, SimpleReader in) {
+        int team1Wins = 0;
+        int team2Wins = 0;
+        int games = 1;
+
+        while (team2Wins != 4 && team1Wins != 4) {
+
+            if (games == 1 || games == 2) {
+                out.println("Game " + games + ": #" + lower + " " + awayT
+                        + " @ #" + i + " " + homeT);
+                out.print(awayT + ": ");
+                int team2Score = 0;
+                String team2S = in.nextLine();
+                team2Score = parser(team2S, in, out);
+                out.println();
+                out.print(homeT + ": ");
+                int team1Score = 0;
+                String team1S = in.nextLine();
+                team1Score = parser(team1S, in, out);
+
+                while (team2Score == team1Score) {
+                    out.println("Cannot end in tie");
+                    out.println("Game " + games + ": #" + lower + " " + awayT
+                            + " @ #" + i + " " + homeT);
+                    out.print(awayT + ": ");
+                    team2S = in.nextLine();
+                    team2Score = parser(team2S, in, out);
+                    out.println();
+                    out.print(homeT + ": ");
+                    team1S = in.nextLine();
+                    team1Score = parser(team1S, in, out);
+                }
+                if (team2Score > team1Score) {
+                    team2Wins++;
+                } else if (team1Score > team2Score) {
+                    team1Wins++;
+                }
+                out.println();
+                out.println(homeT + " " + team1Wins);
+                out.println(awayT + " " + team2Wins);
+                out.println();
+                games++;
+
+            }
+            if (games == 3 || games == 4) {
+                out.println();
+                out.println("Game " + games + ": #" + i + " " + homeT + " @ #"
+                        + lower + " " + awayT);
+                out.print(homeT + ": ");
+                int team1Score = 0;
+                String team1S = in.nextLine();
+                team1Score = parser(team1S, in, out);
+                out.println();
+                out.print(awayT + ": ");
+                int team2Score = 0;
+                String team2S = in.nextLine();
+                team2Score = parser(team2S, in, out);
+
+                while (team2Score == team1Score) {
+                    out.println("Cannot end in tie");
+                    out.println("Game " + games + ": #" + i + " " + homeT
+                            + " @ #" + lower + " " + awayT);
+                    out.print(homeT + ": ");
+                    team1S = in.nextLine();
+                    team1Score = parser(team1S, in, out);
+                    out.println();
+                    out.print(awayT + ": ");
+                    team2S = in.nextLine();
+                    team2Score = parser(team2S, in, out);
+                }
+                if (team2Score > team1Score) {
+                    team2Wins++;
+                } else if (team1Score > team2Score) {
+                    team1Wins++;
+                }
+                out.println();
+                out.println(homeT + " " + team1Wins);
+                out.println(awayT + " " + team2Wins);
+                games++;
+            }
+            if (team1Wins == 4 || team2Wins == 4) {
+                games = 8;
+            }
+            if (games == 5) {
+                out.println();
+                out.println("Game " + games + ": #" + lower + " " + awayT
+                        + " @ #" + i + " " + homeT);
+                out.print(awayT + ": ");
+                int team2Score = 0;
+                String team2S = in.nextLine();
+                team2Score = parser(team2S, in, out);
+                out.println();
+                out.print(homeT + ": ");
+                int team1Score = 0;
+                String team1S = in.nextLine();
+                team1Score = parser(team1S, in, out);
+
+                while (team2Score == team1Score) {
+                    out.println("Cannot end in tie");
+                    out.println("Game " + games + ": #" + lower + " " + awayT
+                            + " @ #" + i + " " + homeT);
+                    out.print(awayT + ": ");
+                    team2S = in.nextLine();
+                    team2Score = parser(team2S, in, out);
+                    out.println();
+                    out.print(homeT + ": ");
+                    team1S = in.nextLine();
+                    team1Score = parser(team1S, in, out);
+                }
+                if (team2Score > team1Score) {
+                    team2Wins++;
+                } else if (team1Score > team2Score) {
+                    team1Wins++;
+                }
+                out.println();
+                out.println(homeT + " " + team1Wins);
+                out.println(awayT + " " + team2Wins);
+                games++;
+
+            }
+            if (team1Wins == 4 || team2Wins == 4) {
+                games = 8;
+            }
+            if (games == 6) {
+                out.println();
+                out.println("Game " + games + ": #" + i + " " + homeT + " @ #"
+                        + lower + " " + awayT);
+                out.print(homeT + ": ");
+                int team1Score = 0;
+                String team1S = in.nextLine();
+                team1Score = parser(team1S, in, out);
+                out.println();
+                out.print(awayT + ": ");
+                int team2Score = 0;
+                String team2S = in.nextLine();
+                team2Score = parser(team2S, in, out);
+
+                while (team2Score == team1Score) {
+                    out.println("Cannot end in tie");
+                    out.println("Game " + games + ": #" + i + " " + homeT
+                            + " @ #" + lower + " " + awayT);
+                    out.print(homeT + ": ");
+                    team1S = in.nextLine();
+                    team1Score = parser(team1S, in, out);
+                    out.println();
+                    out.print(awayT + ": ");
+                    team2S = in.nextLine();
+                    team2Score = parser(team2S, in, out);
+                }
+                if (team2Score > team1Score) {
+                    team2Wins++;
+                } else if (team1Score > team2Score) {
+                    team1Wins++;
+                }
+                out.println();
+                out.println(homeT + " " + team1Wins);
+                out.println(awayT + " " + team2Wins);
+                games++;
+            }
+            if (team1Wins == 4 || team2Wins == 4) {
+                games = 8;
+            }
+            if (games == 7) {
+                out.println();
+                out.println("Game " + games + ": #" + lower + " " + awayT
+                        + " @ #" + i + " " + homeT);
+                out.print(awayT + ": ");
+                int team2Score = 0;
+                String team2S = in.nextLine();
+                team2Score = parser(team2S, in, out);
+                out.println();
+                out.print(homeT + ": ");
+                int team1Score = 0;
+                String team1S = in.nextLine();
+                team1Score = parser(team1S, in, out);
+
+                while (team2Score == team1Score) {
+                    out.println("Cannot end in tie");
+                    out.println("Game " + games + ": #" + lower + " " + awayT
+                            + " @ #" + i + " " + homeT);
+                    out.print(awayT + ": ");
+                    team2S = in.nextLine();
+                    team2Score = parser(team2S, in, out);
+                    out.println();
+                    out.print(homeT + ": ");
+                    team1S = in.nextLine();
+                    team1Score = parser(team1S, in, out);
+                }
+                if (team2Score > team1Score) {
+                    team2Wins++;
+                } else if (team1Score > team2Score) {
+                    team1Wins++;
+                }
+                out.println();
+                out.println(homeT + " " + team1Wins);
+                out.println(awayT + " " + team2Wins);
+                games++;
+
+            }
+        }
+        if (team1Wins == 4) {
+            out.println(homeT + " wins " + team1Wins + "-" + team2Wins);
+            return i;
+
+        } else {
+            out.println(awayT + " wins " + team2Wins + "-" + team1Wins);
+            return lower;
+
+        }
+
+    }
+
     public static ArrayList<Integer> FirstR(Map<Integer, String> seeds,
-            SimpleReader in, SimpleWriter out) {
+            SimpleReader in, SimpleWriter out, String conf) {
         ArrayList<Integer> winningSeeds = new ArrayList<Integer>();
+        out.println(conf + " conference FIRST ROUND");
         for (int i = 1; i <= 4; i++) {
             String team1 = seeds.value(i);
             int lower = 9 - i;
             String team2 = seeds.value(lower);
-            int team1Wins = 0;
-            int team2Wins = 0;
-            int games = 1;
-            while (team2Wins != 4 && team1Wins != 4) {
+            int winning = series(i, lower, team1, team2, out, in);
 
-                if (games == 1 || games == 2) {
-                    out.println("Game " + games + ": #" + lower + " " + team2
-                            + " @ #" + i + " " + team1);
-                    out.print(team2 + ": ");
-                    int team2Score = 0;
-                    team2Score = in.nextInteger();
-                    out.println();
-                    out.print(team1 + ": ");
-                    int team1Score = 0;
-                    team1Score = in.nextInteger();
+            winningSeeds.add(0, winning);
 
-                    while (team2Score == team1Score) {
-                        out.println("Cannot end in tie");
-                        out.println(
-                                "Game " + games + ": " + team2 + " @ " + team1);
-                        out.print(team2 + ": ");
-                        team2Score = in.nextInteger();
-                        out.println();
-                        out.print(team1 + ": ");
-                        team1Score = in.nextInteger();
-                    }
-                    if (team2Score > team1Score) {
-                        team2Wins++;
-                    } else if (team1Score > team2Score) {
-                        team1Wins++;
-                    }
-                    out.println();
-                    out.println(team1 + " " + team1Wins);
-                    out.println(team2 + " " + team2Wins);
-                    out.println();
-                    games++;
-
-                }
-                if (games == 3 || games == 4) {
-                    out.println();
-                    out.println("Game " + games + ": " + team1 + " @ " + team2);
-                    out.print(team1 + ": ");
-                    int team1Score = 0;
-                    team1Score = in.nextInteger();
-                    out.println();
-                    out.print(team2 + ": ");
-                    int team2Score = 0;
-                    team2Score = in.nextInteger();
-
-                    while (team2Score == team1Score) {
-                        out.println("Cannot end in tie");
-                        out.println(
-                                "Game " + games + ": " + team1 + " @ " + team2);
-                        out.print(team1 + ": ");
-                        team1Score = in.nextInteger();
-                        out.println();
-                        out.print(team2 + ": ");
-                        team2Score = in.nextInteger();
-                    }
-                    if (team2Score > team1Score) {
-                        team2Wins++;
-                    } else if (team1Score > team2Score) {
-                        team1Wins++;
-                    }
-                    out.println();
-                    out.println(team1 + " " + team1Wins);
-                    out.println(team2 + " " + team2Wins);
-                    games++;
-                }
-                if (team1Wins == 4 || team2Wins == 4) {
-                    games = 8;
-                }
-                if (games == 5) {
-                    out.println();
-                    out.println("Game " + games + ": #" + lower + " " + team2
-                            + " @ #" + i + " " + team1);
-                    out.print(team2 + ": ");
-                    int team2Score = 0;
-                    team2Score = in.nextInteger();
-                    out.println();
-                    out.print(team1 + ": ");
-                    int team1Score = 0;
-                    team1Score = in.nextInteger();
-
-                    while (team2Score == team1Score) {
-                        out.println("Cannot end in tie");
-                        out.println(
-                                "Game " + games + ": " + team2 + " @ " + team1);
-                        out.print(team2 + ": ");
-                        team2Score = in.nextInteger();
-                        out.println();
-                        out.print(team1 + ": ");
-                        team1Score = in.nextInteger();
-                    }
-                    if (team2Score > team1Score) {
-                        team2Wins++;
-                    } else if (team1Score > team2Score) {
-                        team1Wins++;
-                    }
-                    out.println();
-                    out.println(team1 + " " + team1Wins);
-                    out.println(team2 + " " + team2Wins);
-                    games++;
-
-                }
-                if (team1Wins == 4 || team2Wins == 4) {
-                    games = 8;
-                }
-                if (games == 6) {
-                    out.println();
-                    out.println("Game " + games + ": " + team1 + " @ " + team2);
-                    out.print(team1 + ": ");
-                    int team1Score = 0;
-                    team1Score = in.nextInteger();
-                    out.println();
-                    out.print(team2 + ": ");
-                    int team2Score = 0;
-                    team2Score = in.nextInteger();
-
-                    while (team2Score == team1Score) {
-                        out.println("Cannot end in tie");
-                        out.println(
-                                "Game " + games + ": " + team1 + " @ " + team2);
-                        out.print(team1 + ": ");
-                        team1Score = in.nextInteger();
-                        out.println();
-                        out.print(team2 + ": ");
-                        team2Score = in.nextInteger();
-                    }
-                    if (team2Score > team1Score) {
-                        team2Wins++;
-                    } else if (team1Score > team2Score) {
-                        team1Wins++;
-                    }
-                    out.println();
-                    out.println(team1 + " " + team1Wins);
-                    out.println(team2 + " " + team2Wins);
-                    games++;
-                }
-                if (team1Wins == 4 || team2Wins == 4) {
-                    games = 8;
-                }
-                if (games == 7) {
-                    out.println();
-                    out.println("Game " + games + ": #" + lower + " " + team2
-                            + " @ #" + i + " " + team1);
-                    out.print(team2 + ": ");
-                    int team2Score = 0;
-                    team2Score = in.nextInteger();
-                    out.println();
-                    out.print(team1 + ": ");
-                    int team1Score = 0;
-                    team1Score = in.nextInteger();
-
-                    while (team2Score == team1Score) {
-                        out.println("Cannot end in tie");
-                        out.println(
-                                "Game " + games + ": " + team2 + " @ " + team1);
-                        out.print(team2 + ": ");
-                        team2Score = in.nextInteger();
-                        out.println();
-                        out.print(team1 + ": ");
-                        team1Score = in.nextInteger();
-                    }
-                    if (team2Score > team1Score) {
-                        team2Wins++;
-                    } else if (team1Score > team2Score) {
-                        team1Wins++;
-                    }
-                    out.println();
-                    out.println(team1 + " " + team1Wins);
-                    out.println(team2 + " " + team2Wins);
-                    games++;
-
-                }
-            }
-            if (team1Wins == 4) {
-                out.println(team1 + " wins " + team1Wins + "-" + team2Wins);
-                winningSeeds.add(0, i);
-            } else {
-                out.println(team2 + " wins " + team2Wins + "-" + team1Wins);
-                winningSeeds.add(0, 9 - i);
-            }
+            out.println();
         }
         return winningSeeds;
+    }
+
+    public static ArrayList<Integer> SecondR(ArrayList<Integer> firstR,
+            Map<Integer, String> seeds, SimpleReader in, SimpleWriter out,
+            String conf) {
+        ArrayList<Integer> winningSeeds = new ArrayList<Integer>();
+        out.println(conf + " conference SECOND ROUND");
+        for (int i = 0; i <= 1; i++) {
+            int temp1 = firstR.get(i);
+            int temp2 = firstR.get(3 - i);
+            int t1;
+            int t2;
+            if (temp1 < temp2) {
+                t1 = temp1;
+                t2 = temp2;
+            } else {
+                t1 = temp2;
+                t2 = temp1;
+            }
+            String team1 = seeds.value(t1);
+            String team2 = seeds.value(t2);
+
+            int winning = series(t1, t2, team1, team2, out, in);
+            winningSeeds.add(0, winning);
+
+            out.println();
+
+        }
+
+        return winningSeeds;
+    }
+
+    public static String Cfinals(ArrayList<Integer> secondR,
+            Map<Integer, String> seeds, SimpleReader in, SimpleWriter out,
+            String conf) {
+        out.println(conf + " conference FINALS");
+        int temp1 = secondR.get(0);
+        int temp2 = secondR.get(1);
+        int t1;
+        int t2;
+        if (temp1 < temp2) {
+            t1 = temp1;
+            t2 = temp2;
+        } else {
+            t1 = temp2;
+            t2 = temp1;
+        }
+        String team1 = seeds.value(t1);
+        String team2 = seeds.value(t2);
+
+        int winning = series(t1, t2, team1, team2, out, in);
+
+        return seeds.value(winning);
+
+    }
+
+    public static void Finals(String team1, String team2, SimpleReader in,
+            SimpleWriter out) {
+        out.println("NBA FINALS");
+
+        series(0, 0, team1, team2, out, in);
+
     }
 
     public static void main(String[] args) {
         SimpleReader in = new SimpleReader1L();
         SimpleWriter out = new SimpleWriter1L();
-        out.println("WESTERN CONFERENCE");
-        Map<Integer, String> westFR = westSeeds(westTeams(), in, out);
-        out.println();
-        out.println("EASTERN CONFERENCE");
-        Map<Integer, String> eastFR = eastSeeds(eastTeams(), in, out);
+        Map<Integer, String> westFR = new Map1L<>();
+        Map<Integer, String> eastFR = new Map1L<>();
+        out.println("Welcome to the NBA Playoff Simulator.");
+        out.println(
+                "Press 1 to choose the Western Conference teams in the playoffs. Press any other key to automatically have the playoffs set");
+        String inp = in.nextLine();
+        if (inp.equals("1")) {
+            out.println("WESTERN CONFERENCE");
+            westFR = chooseWestSeeds(westTeams(), in, out);
+        } else {
+            westFR = autoWestSeeds(westTeams());
+        }
 
-        ArrayList<Integer> WCSF = FirstR(westFR, in, out);
-        ArrayList<Integer> ECSF = FirstR(eastFR, in, out);
-        Collections.sort(WCSF);
-        Collections.sort(ECSF);
-        out.println("Western Conference Semi Final teams: ");
+        out.println(
+                "Press 1 to choose the Eastern Conference teams in the playoffs. Press any other key to automatically have the playoffs set");
+        String inp2 = in.nextLine();
+        if (inp2.equals("1")) {
+            out.println("EASTERN CONFERENCE");
+            eastFR = chooseEastSeeds(eastTeams(), in, out);
+        } else {
+            eastFR = autoEastSeeds(eastTeams());
+        }
+        out.println();
+
+        ArrayList<Integer> WCSF = FirstR(westFR, in, out, "Western");
+        ArrayList<Integer> ECSF = FirstR(eastFR, in, out, "Eastern");
+        //Collections.sort(WCSF);
+        //Collections.sort(ECSF);
+        out.println("Western Conference Second Round teams: ");
         for (int a = 0; a < WCSF.size(); a++) {
             out.println("#" + WCSF.get(a) + " " + westFR.value(WCSF.get(a)));
         }
 
-        out.println("Eastern Conference Semi Final teams: ");
+        out.println("Eastern Conference Second Round teams: ");
         for (int a = 0; a < ECSF.size(); a++) {
             out.println("#" + ECSF.get(a) + " " + eastFR.value(ECSF.get(a)));
         }
 
+        out.println();
+        out.println();
+
         //CSF
         // 1 or 8 plays 4 or 5
         // 2 or 7 plays 3 or 6
+
+        ArrayList<Integer> WCF = SecondR(WCSF, westFR, in, out, "Western");
+        ArrayList<Integer> ECF = SecondR(ECSF, eastFR, in, out, "Eastern");
+
+        out.println("Western Conference Finals teams: ");
+        for (int a = 0; a < WCF.size(); a++) {
+            out.println("#" + WCF.get(a) + " " + westFR.value(WCF.get(a)));
+        }
+
+        out.println("Eastern Conference Second Round teams: ");
+        for (int a = 0; a < ECF.size(); a++) {
+            out.println("#" + ECF.get(a) + " " + eastFR.value(ECF.get(a)));
+        }
+
+        String westFinalsTeam = Cfinals(WCF, westFR, in, out, "Western");
+        String eastFinalsTeam = Cfinals(ECF, eastFR, in, out, "Eastern");
+
+        out.println();
+        int westFinal = westFR.key(westFinalsTeam);
+        int eastFinal = eastFR.key(eastFinalsTeam);
+        out.println("NBA Finals teams:");
+        out.println("#" + westFinal + " " + westFinalsTeam + " vs. #"
+                + eastFinal + " " + eastFinalsTeam);
+
+        String team1;
+        String team2;
+
+        if (eastFinal > westFinal) {
+            team1 = eastFinalsTeam;
+            team2 = westFinalsTeam;
+        } else {
+            team2 = eastFinalsTeam;
+            team1 = westFinalsTeam;
+        }
+
+        Map<Integer, String> totalTeams = new Map1L<>();
+
+        Finals(team1, team2, in, out);
 
         in.close();
         out.close();
