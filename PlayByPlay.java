@@ -14,7 +14,7 @@ import javafx.util.Pair;
 /**
  * Put a short phrase describing the program here.
  *
- * @author Put your name here
+ * @author Aytekin Alpay
  *
  */
 public final class PlayByPlay {
@@ -103,6 +103,22 @@ public final class PlayByPlay {
         return f;
     }
 
+    private static Set<String> starters(Set<String> roster, Scanner in) {
+        Set<String> start = new HashSet<>();
+        int i = 0;
+        while (i < 5) {
+            System.out.println("Who is starter " + (i + 1));
+            String starter = in.nextLine();
+            while (!roster.contains(starter) || start.contains(starter)) {
+                System.out.println("Try again. Who is starter " + (i + 1));
+                starter = in.nextLine();
+            }
+            start.add(starter);
+            i++;
+        }
+        return start;
+    }
+
     private static Pair<String, String> genParser(Scanner in, Set<String> team,
             Set<String> verbs) {
         System.out.println(
@@ -139,15 +155,18 @@ public final class PlayByPlay {
     private static void parser(Scanner in, Pair<String, String> action,
             Set<String> team, Set<String> scoreTypes, Set<String> turnover,
             Set<String> fouls, BufferedWriter out) throws IOException {
-        if (action.getValue().equals("grabs")) {
+        if (action.getValue().equals("grabs")) { //REBOUNDS
+            System.out.println(
+                    "What kind of rebound did " + action.getKey() + " grab?");
             String rebound = in.nextLine();
-            while (!rebound.equals("defensive rebound")
-                    && !rebound.equals("offensive rebound")) {
+            while (!rebound.equals("defensive")
+                    && !rebound.equals("offensive")) {
+                System.out.println("Try again: ");
                 rebound = in.nextLine();
             }
             out.write(action.getKey() + " " + action.getValue() + " " + rebound
-                    + "\n"); //file output
-        } else if (action.getValue().equals("makes")) {
+                    + " rebound\n"); //file output
+        } else if (action.getValue().equals("makes")) { //POINTS
             System.out.println(
                     "What kind of point did " + action.getKey() + " score?");
             String shot = in.nextLine();
@@ -155,7 +174,7 @@ public final class PlayByPlay {
                 System.out.println("Re-input shot type");
                 shot = in.nextLine();
             }
-            if (shot.equals("free throws")) {
+            if (shot.equals("free throws")) { //FTS
                 System.out.println("How many free throws total is "
                         + action.getKey() + " is shooting?");
                 int foul = in.nextInt();
@@ -178,32 +197,117 @@ public final class PlayByPlay {
                     out.write(action.getKey() + " " + ft + " free throw " + i
                             + " of " + foul + "\n"); //file output
                 }
-            } else if (shot.equals("two point shot")) {
+            } else if (shot.equals("two point shot")) { //2 POINTS
                 System.out.println("What kind of " + shot + " was this?");
                 String twoP = in.nextLine();
                 while (!twoPoint().contains(twoP)) {
                     System.out.println("Try again: ");
                     twoP = in.nextLine();
                 }
-                System.out.println("How far out was this " + twoP + "?");
-                int dist = in.nextInt();
-                while (dist < 0 || dist > 23) {
-                    System.out.println("Try again: ");
-                    dist = in.nextInt();
+                String assist = "";
+
+                if (twoP.equals("dunk")) { //DUNK
+                    System.out.println("Was it an alley oop?");
+                    String a = in.nextLine();
+                    while (!a.toLowerCase().equals("yes")
+                            && !a.toLowerCase().equals("no")) {
+                        System.out.println("Try again");
+                        a = in.nextLine();
+                    }
+                    if (a.toLowerCase().equals("yes")) { //ALLEY OOP
+                        System.out.println("Who assisted?");
+                        String player = in.nextLine();
+                        while (!team.contains(player)) {
+                            System.out.println("Try again");
+                            player = in.nextLine();
+                        }
+                        assist = " (assisted by " + player + ")";
+                    } else {
+                        System.out
+                                .println("How far out was this " + twoP + "?");
+                        int dist = in.nextInt();
+                        while (dist < 0 || dist > 23) {
+                            System.out.println("Try again: ");
+                            dist = in.nextInt();
+                        }
+                        System.out.println("Did anyone assist this bucket?");
+                        String yesNo = in.nextLine();
+                        while (!yesNo.toLowerCase().equals("yes")
+                                && !yesNo.toLowerCase().equals("no")) {
+                            System.out.println("Must be 'yes' or 'no'");
+                            yesNo = in.nextLine();
+                        }
+                        if (yesNo.toLowerCase().equals("yes")) {
+                            System.out.println("Who assisted?");
+                            String player = in.nextLine();
+                            while (!team.contains(player)) {
+                                System.out.println("Try again");
+                                player = in.nextLine();
+                            }
+                            assist = " (assisted by " + player + ")";
+                        } else {
+
+                        }
+                    }
+
+                } else { //2 POINTS NOT A DUNK
+                    System.out.println("How far out was this " + twoP + "?");
+                    int dist = in.nextInt();
+                    while (dist < 0 || dist > 23) {
+                        System.out.println("Try again: ");
+                        dist = in.nextInt();
+                    }
+                    System.out.println("Did anyone assist this bucket?");
+                    String yesNo = in.nextLine();
+                    while (!yesNo.toLowerCase().equals("yes")
+                            && !yesNo.toLowerCase().equals("no")) {
+                        System.out.println("Must be 'yes' or 'no'");
+                        yesNo = in.nextLine();
+                    }
+                    if (yesNo.toLowerCase().equals("yes")) {
+                        System.out.println("Who assisted?");
+                        String player = in.nextLine();
+                        while (!team.contains(player)) {
+                            System.out.println("Try again");
+                            player = in.nextLine();
+                        }
+                        assist = " (assisted by " + player + ")";
+                    } else {
+
+                    }
+                    out.write(action.getKey() + " " + action.getValue() + " "
+                            + dist + "-foot " + twoP + assist + "\n"); //file output
                 }
-                out.write(action.getKey() + " " + action.getValue() + " " + dist
-                        + "-foot " + twoP + "\n"); //file output
-            } else {
+            } else { //3 POINTER
                 System.out.println("How far out was this three pointer?");
                 int dist = in.nextInt();
                 while (dist >= 95 || dist <= 23) {
                     System.out.println("Try again: ");
                     dist = in.nextInt();
                 }
+                System.out.println("Did anyone assist this bucket?");
+                String yesNo = in.nextLine();
+                while (!yesNo.toLowerCase().equals("yes")
+                        && !yesNo.toLowerCase().equals("no")) {
+                    System.out.println("Must be 'yes' or 'no'");
+                    yesNo = in.nextLine();
+                }
+                String assist = "";
+                if (yesNo.toLowerCase().equals("yes")) {
+                    System.out.println("Who assisted?");
+                    String player = in.nextLine();
+                    while (!team.contains(player)) {
+                        System.out.println("Try again");
+                        player = in.nextLine();
+                    }
+                    assist = " (assisted by " + player + ")";
+                } else {
+
+                }
                 out.write(action.getKey() + " " + action.getValue() + " " + dist
-                        + "-foot three pointer \n"); //file output
+                        + "-foot three pointer" + assist + "\n"); //file output
             }
-        } else if (action.getValue().equals("misses")) {
+        } else if (action.getValue().equals("misses")) { //MISSED SHOTS
             System.out.println(
                     "What kind of point did " + action.getKey() + " miss?");
             String shot = in.nextLine();
@@ -211,7 +315,7 @@ public final class PlayByPlay {
                 System.out.println("Re-input shot type");
                 shot = in.nextLine();
             }
-            if (shot.equals("free throws")) {
+            if (shot.equals("free throws")) { //FREE THROWS
                 System.out.println("How many free throws total is "
                         + action.getKey() + " is shooting?");
                 int foul = in.nextInt();
@@ -234,7 +338,7 @@ public final class PlayByPlay {
                     out.write(action.getKey() + " " + ft + " free throw " + i
                             + " of " + foul + "\n"); //file output
                 }
-            } else if (shot.equals("two point shot")) {
+            } else if (shot.equals("two point shot")) { //TWO POINT SHOT
                 System.out.println("What kind of " + shot + " was this?");
                 String twoP = in.nextLine();
                 while (!twoPoint().contains(twoP)) {
@@ -249,7 +353,7 @@ public final class PlayByPlay {
                 }
                 out.write(action.getKey() + " " + action.getValue() + " " + dist
                         + "-foot " + twoP + "\n"); //file output
-            } else {
+            } else { //THREES
                 System.out.println("How far out was this three pointer?");
                 int dist = in.nextInt();
                 while (dist >= 95 || dist <= 23) {
@@ -259,6 +363,10 @@ public final class PlayByPlay {
                 out.write(action.getKey() + " " + action.getValue() + " " + dist
                         + "-foot three pointer \n"); //file output
             }
+        } else if (action.getValue().equals("steps")) {
+
+        } else if (action.getValue().equals("commits")) {
+
         }
     }
 
@@ -276,9 +384,10 @@ public final class PlayByPlay {
         Map<String, String> team = pistons();
         Set<String> keySet = team.keySet();
         Set<String> verbs = verbs();
+        Set<String> starters = starters(keySet, in);
         int i = 0;
         while (i == 0) {
-            Pair<String, String> action = genParser(in, keySet, verbs);
+            Pair<String, String> action = genParser(in, starters, verbs);
             if (action.getKey().equals("")) {
                 write.write("GAME OVER");
                 i++;
