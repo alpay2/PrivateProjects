@@ -5,12 +5,14 @@ This repository showcases my projects I do on my free time.
 
 The projects that are available currently are:
 
-1- (in progress) POS.java: A standard retail register system
+1- POS.java: A standard retail register system
 
-2- (in progress) MarvelCinematicUniverseEncyclopedia.java: An encyclopeida of MCU heroes with their affiliated groups
+2- MarvelCinematicUniverseEncyclopedia.java: An encyclopeida of MCU heroes with their affiliated groups
 
-3- (in progress) ChampionsLeagie.java: An interactive simulator of the UEFA Champions League, with settings to be custom made or associated with the 2018/19 Champions League
+3- ChampionsLeague.java: An interactive simulator of the UEFA Champions League, with settings to be custom made or associated with the 2018/19 Champions League
 
-4- (in progress) NBA_Playoffs: An interactive simulator of the NBA Playoffs
+4- NBA_Playoffs: An interactive simulator of the NBA Playoffs
+
+5- PlayByPlay: A user friendly play by play generator
 
 Hope you enjoy!
