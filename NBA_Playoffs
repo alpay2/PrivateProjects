@@ -1,13 +1,16 @@
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 
-import components.map.Map;
-import components.map.Map1L;
-import components.set.Set;
-import components.set.Set1L;
-import components.simplereader.SimpleReader;
-import components.simplereader.SimpleReader1L;
-import components.simplewriter.SimpleWriter;
-import components.simplewriter.SimpleWriter1L;
+import javafx.util.Pair;
 
 /**
  * Put a short phrase describing the program here.
@@ -15,510 +18,495 @@ import components.simplewriter.SimpleWriter1L;
  * @author Aytekin Alpay
  *
  */
-public final class Playoffs {
+public final class PlayByPlay {
 
-    public static Set<String> westTeams() {
-        Set<String> teams = new Set1L<>();
-        teams.add("Oklahoma City Thunder");
-        teams.add("Los Angeles Lakers");
-        teams.add("Sacramento Kings");
-        teams.add("Houston Rockets");
-        teams.add("Utah Jazz");
-        teams.add("San Antonio Spurs");
-        teams.add("Phoenix Suns");
-        teams.add("Minnesota Timberwolves");
-        teams.add("Memphis Grizzlies");
-        teams.add("Dallas Mavericks");
-        teams.add("Los Angeles Clippers");
-        teams.add("Golden State Warriors");
-        teams.add("Portland Trail Blazers");
-        teams.add("New Orleans Pelicans");
-        teams.add("Denver Nuggets");
-        return teams;
+    private static Set<String> teamRoster(String a) throws IOException {
+        File file = new File(a);
+        BufferedReader inF = new BufferedReader(new FileReader(file));
+        Set<String> aff = new HashSet<>();
+        String fa = "";
+        while ((fa = inF.readLine()) != null) {
+            int f = 0;
+            while (fa.charAt(f) == ' '
+                    || (fa.charAt(f) >= 48 && fa.charAt(f) <= 57)) {
+                f++;
+            }
+            aff.add(fa.substring(f));
+        }
+        inF.close();
+        return aff;
     }
 
-    public static Map<Integer, String> chooseWestSeeds(Set<String> teams,
-            SimpleReader in, SimpleWriter out) {
-        Map<Integer, String> west = new Map1L<>();
+    private static Map<String, Set<String>> rosters() throws IOException {
+        Map<String, Set<String>> a = new HashMap<>();
+        a.put("Detroit Pistons", teamRoster("detroit/pistons.txt"));
+        a.put("Milwaukee Bucks", teamRoster("milwaukee/bucks.txt"));
+        a.put("Cleveland Cavaliers", teamRoster("cleveland/cavaliers.txt"));
+        a.put("Chicago Bulls", teamRoster("chicago/bulls.txt"));
+        a.put("Indiana Pacers", teamRoster("indiana/pacers.txt"));
+        a.put("New York Knicks", teamRoster("newyork/knicks.txt"));
+        a.put("Brooklyn Nets", teamRoster("brooklyn/nets.txt"));
+        a.put("Boston Celtics", teamRoster("boston/celtics.txt"));
+        a.put("Toronto Raptors", teamRoster("toronto/raptors.txt"));
+        a.put("Memphis Grizzlies", teamRoster("memphis/grizzlies.txt"));
+        a.put("Minnesota Timberwolves",
+                teamRoster("minnesota/timberwolves.txt"));
+        a.put("Miami Heat", teamRoster("miami/heat.txt"));
+        a.put("Orlando Magic", teamRoster("orlando/magic.txt"));
+        a.put("New Orleans Pelicans", teamRoster("neworleans/pelicans.txt"));
+        a.put("Charlotte Hornets", teamRoster("charlotte/hornets.txt"));
+        a.put("Houston Rockets", teamRoster("houston/rockets.txt"));//16
+        a.put("Dallas Mavericks", teamRoster("dallas/mavericks.txt"));
+        a.put("San Antonio Spurs", teamRoster("sanantonio/spurs.txt"));
+        a.put("Atlanta Hawks", teamRoster("atlanta/hawks.txt"));
+        a.put("Oklahoma City Thunder", teamRoster("oklahomacity/thunder.txt")); //20
+        a.put("Phoenix Suns", teamRoster("phoenix/suns.txt"));
+        a.put("Utah Jazz", teamRoster("utah/jazz.txt"));
+        a.put("Denver Nuggets", teamRoster("denver/nuggets.txt"));
+        a.put("Los Angeles Lakers", teamRoster("losangelesL/lakers.txt"));
+        a.put("Los Angeles Clippers", teamRoster("losangelesC/clippers.txt"));
+        a.put("Golden State Warriors", teamRoster("goldenstate/warriors.txt")); //26
+        a.put("Sacramento Kings", teamRoster("sacramento/kings.txt"));
+        a.put("Portland Trailblazers", teamRoster("portland/trailblazers.txt"));
+        a.put("Philadelphia 76ers", teamRoster("philadelphia/76ers.txt"));
+        a.put("Washington Wizards", teamRoster("washington/wizards.txt"));
+        return a;
+    }
 
-        for (int i = 1; i <= 8; i++) {
-            out.println("Which team is seed #" + i + " in the West?");
-            String team = in.nextLine();
-            while (!teams.contains(team)) {
-                out.println("Not a team in the Western Conference");
-                out.println("Which team is seed #" + i + " in the West?");
+    private static Set<String> fouls() {
+        Set<String> f = new HashSet<>();
+        f.add("personal");
+        f.add("loose ball");
+        f.add("shooting");
+        f.add("flagrant");
+        f.add("charging"); //turnover
+        f.add("offensive"); //turnover
+        f.add("blocking");
+        f.add("reach-in");
+        return f;
+    }
 
-                String team2 = in.nextLine();
-                team = team2;
+    private static Set<String> twoPoint() {
+        Set<String> f = new HashSet<>();
+        f.add("dunk"); //alley-oop
+        f.add("lay-up");
+        f.add("hook shot");
+        f.add("tip shot");
+        f.add("jumper");
+        f.add("floater");
+        return f;
+    }
+
+    private static Set<String> turnovers() {
+        Set<String> f = new HashSet<>();
+        f.add("offensive three seconds"); //technical FT
+        f.add("traveling violation");
+        f.add("double dribble violation");
+        f.add("carrying violation");
+        f.add("bad pass");
+        f.add("loses ball");
+        f.add("offensive foul"); //charging or illegal screen
+        return f;
+    }
+
+    private static Set<String> verbs() {
+        Set<String> f = new HashSet<>();
+        f.add("makes"); //shot or free throw
+        f.add("misses"); //shot or free throw
+        f.add("grabs"); //rebounds
+        f.add("commits"); //foul or turnover
+        f.add("steps"); //out of bounds
+        f.add("assists");
+        f.add("enters the game for");
+        f.add("steals");
+        return f;
+    }
+
+    private static Set<String> scoreTypes() {
+        Set<String> f = new HashSet<>();
+        f.add("free throws");
+        f.add("two point shot");
+        f.add("three point shot");
+        return f;
+    }
+
+    private static Set<String> starters(Set<String> roster, Scanner in,
+            String team) {
+        Set<String> start = new HashSet<>();
+        int i = 0;
+        while (i < 5) {
+            System.out
+                    .println("Who is starter " + (i + 1) + " for the " + team);
+            String starter = in.nextLine();
+            while (!roster.contains(starter) || start.contains(starter)) {
+                System.out.println("Try again. Who is starter " + (i + 1)
+                        + " for the " + team);
+                starter = in.nextLine();
             }
-            while (west.hasValue(team)) {
-                out.println("Already chosen team in playoffs");
-                out.println("Which team is seed #" + i + " in the West?");
-                String team3 = in.nextLine();
-                team = team3;
-            }
-            west.add(i, team);
+            start.add(starter);
+            i++;
+        }
+        return start;
+    }
+
+    private static Pair<String, String> genParser(Scanner in, Set<String> team,
+            Set<String> verbs) {
+        System.out.println("Type 'name' to write the play");
+        String choice = in.nextLine();
+        while (!choice.equals("name")) {
+            System.out.println("Type 'name' to write the play");
+            choice = in.nextLine();
         }
 
-        return west;
-    }
-
-    public static Map<Integer, String> autoWestSeeds(Set<String> teams) {
-        Map<Integer, String> seeds = new Map1L<>();
-        for (int i = 1; i <= 8; i++) {
-            seeds.add(i, teams.removeAny());
+        System.out.println("Name: ");
+        String name = in.nextLine();
+        while (!team.contains(name)) {
+            System.out.println("Use a valid player");
+            name = in.nextLine();
         }
-        return seeds;
-    }
-
-    public static Set<String> eastTeams() {
-        Set<String> teams = new Set1L<>();
-        teams.add("Cleveland Cavaliers");
-        teams.add("Washington Wizards");
-        teams.add("Atlanta Hawks");
-        teams.add("Miami Heat");
-        teams.add("New York Knicks");
-        teams.add("Chicago Bulls");
-        teams.add("Brooklyn Nets");
-        teams.add("Indiana Pacers");
-        teams.add("Boston Celtics");
-        teams.add("Orlando Magic");
-        teams.add("Charlotte Hornets");
-        teams.add("Philadelphia 76ers");
-        teams.add("Detroit Pistons");
-        teams.add("Milwaukee Bucks");
-        teams.add("Toronto Raptors");
-        return teams;
-    }
-
-    public static Map<Integer, String> chooseEastSeeds(Set<String> teams,
-            SimpleReader in, SimpleWriter out) {
-        Map<Integer, String> east = new Map1L<>();
-        for (int i = 1; i <= 8; i++) {
-            out.println("Which team is seed #" + i + " in the East?");
-            String team = in.nextLine();
-            while (!teams.contains(team)) {
-                out.println("Not a team in the Eastern Conference");
-                out.println("Which team is seed #" + i + " in the East?");
-                String team2 = in.nextLine();
-                team = team2;
-            }
-            while (east.hasValue(team)) {
-                out.println("Already chosen team in playoffs");
-                out.println("Which team is seed #" + i + " in the East?");
-                String team2 = in.nextLine();
-                team = team2;
-            }
-            east.add(i, team);
+        System.out.println("Action: ");
+        String action = in.nextLine();
+        while (!verbs.contains(action)) {
+            System.out.println("Use a valid action");
+            action = in.nextLine();
         }
-        return east;
-    }
-
-    public static Map<Integer, String> autoEastSeeds(Set<String> teams) {
-        Map<Integer, String> seeds = new Map1L<>();
-        for (int i = 1; i <= 8; i++) {
-            seeds.add(i, teams.removeAny());
-        }
-        return seeds;
-    }
-
-    public static int parser(String intg, SimpleReader in, SimpleWriter out) {
-        for (int a = 0; a < intg.length(); a++) {
-            while (!(intg.charAt(a) == '1') && !(intg.charAt(a) == '2')
-                    && !(intg.charAt(a) == '3') && !(intg.charAt(a) == '4')
-                    && !(intg.charAt(a) == '5') && !(intg.charAt(a) == '6')
-                    && !(intg.charAt(a) == '7') && !(intg.charAt(a) == '8')
-                    && !(intg.charAt(a) == '9') && !(intg.charAt(a) == '0')) {
-                out.println(
-                        "Not a valid score. Must be a whole positive number: ");
-                String redo = in.nextLine();
-                intg = redo;
-            }
-        }
-
-        return Integer.parseInt(intg);
-    }
-
-    public static int series(int i, int lower, String homeT, String awayT,
-            SimpleWriter out, SimpleReader in) {
-        int team1Wins = 0;
-        int team2Wins = 0;
-        int games = 1;
-
-        while (team2Wins != 4 && team1Wins != 4) {
-
-            if (games == 1 || games == 2) {
-                out.println("Game " + games + ": #" + lower + " " + awayT
-                        + " @ #" + i + " " + homeT);
-                out.print(awayT + ": ");
-                int team2Score = 0;
-                String team2S = in.nextLine();
-                team2Score = parser(team2S, in, out);
-                out.println();
-                out.print(homeT + ": ");
-                int team1Score = 0;
-                String team1S = in.nextLine();
-                team1Score = parser(team1S, in, out);
-
-                while (team2Score == team1Score) {
-                    out.println("Cannot end in tie");
-                    out.println("Game " + games + ": #" + lower + " " + awayT
-                            + " @ #" + i + " " + homeT);
-                    out.print(awayT + ": ");
-                    team2S = in.nextLine();
-                    team2Score = parser(team2S, in, out);
-                    out.println();
-                    out.print(homeT + ": ");
-                    team1S = in.nextLine();
-                    team1Score = parser(team1S, in, out);
-                }
-                if (team2Score > team1Score) {
-                    team2Wins++;
-                } else if (team1Score > team2Score) {
-                    team1Wins++;
-                }
-                out.println();
-                out.println(homeT + " " + team1Wins);
-                out.println(awayT + " " + team2Wins);
-                out.println();
-                games++;
-
-            }
-            if (games == 3 || games == 4) {
-                out.println();
-                out.println("Game " + games + ": #" + i + " " + homeT + " @ #"
-                        + lower + " " + awayT);
-                out.print(homeT + ": ");
-                int team1Score = 0;
-                String team1S = in.nextLine();
-                team1Score = parser(team1S, in, out);
-                out.println();
-                out.print(awayT + ": ");
-                int team2Score = 0;
-                String team2S = in.nextLine();
-                team2Score = parser(team2S, in, out);
-
-                while (team2Score == team1Score) {
-                    out.println("Cannot end in tie");
-                    out.println("Game " + games + ": #" + i + " " + homeT
-                            + " @ #" + lower + " " + awayT);
-                    out.print(homeT + ": ");
-                    team1S = in.nextLine();
-                    team1Score = parser(team1S, in, out);
-                    out.println();
-                    out.print(awayT + ": ");
-                    team2S = in.nextLine();
-                    team2Score = parser(team2S, in, out);
-                }
-                if (team2Score > team1Score) {
-                    team2Wins++;
-                } else if (team1Score > team2Score) {
-                    team1Wins++;
-                }
-                out.println();
-                out.println(homeT + " " + team1Wins);
-                out.println(awayT + " " + team2Wins);
-                games++;
-            }
-            if (team1Wins == 4 || team2Wins == 4) {
-                games = 8;
-            }
-            if (games == 5) {
-                out.println();
-                out.println("Game " + games + ": #" + lower + " " + awayT
-                        + " @ #" + i + " " + homeT);
-                out.print(awayT + ": ");
-                int team2Score = 0;
-                String team2S = in.nextLine();
-                team2Score = parser(team2S, in, out);
-                out.println();
-                out.print(homeT + ": ");
-                int team1Score = 0;
-                String team1S = in.nextLine();
-                team1Score = parser(team1S, in, out);
-
-                while (team2Score == team1Score) {
-                    out.println("Cannot end in tie");
-                    out.println("Game " + games + ": #" + lower + " " + awayT
-                            + " @ #" + i + " " + homeT);
-                    out.print(awayT + ": ");
-                    team2S = in.nextLine();
-                    team2Score = parser(team2S, in, out);
-                    out.println();
-                    out.print(homeT + ": ");
-                    team1S = in.nextLine();
-                    team1Score = parser(team1S, in, out);
-                }
-                if (team2Score > team1Score) {
-                    team2Wins++;
-                } else if (team1Score > team2Score) {
-                    team1Wins++;
-                }
-                out.println();
-                out.println(homeT + " " + team1Wins);
-                out.println(awayT + " " + team2Wins);
-                games++;
-
-            }
-            if (team1Wins == 4 || team2Wins == 4) {
-                games = 8;
-            }
-            if (games == 6) {
-                out.println();
-                out.println("Game " + games + ": #" + i + " " + homeT + " @ #"
-                        + lower + " " + awayT);
-                out.print(homeT + ": ");
-                int team1Score = 0;
-                String team1S = in.nextLine();
-                team1Score = parser(team1S, in, out);
-                out.println();
-                out.print(awayT + ": ");
-                int team2Score = 0;
-                String team2S = in.nextLine();
-                team2Score = parser(team2S, in, out);
-
-                while (team2Score == team1Score) {
-                    out.println("Cannot end in tie");
-                    out.println("Game " + games + ": #" + i + " " + homeT
-                            + " @ #" + lower + " " + awayT);
-                    out.print(homeT + ": ");
-                    team1S = in.nextLine();
-                    team1Score = parser(team1S, in, out);
-                    out.println();
-                    out.print(awayT + ": ");
-                    team2S = in.nextLine();
-                    team2Score = parser(team2S, in, out);
-                }
-                if (team2Score > team1Score) {
-                    team2Wins++;
-                } else if (team1Score > team2Score) {
-                    team1Wins++;
-                }
-                out.println();
-                out.println(homeT + " " + team1Wins);
-                out.println(awayT + " " + team2Wins);
-                games++;
-            }
-            if (team1Wins == 4 || team2Wins == 4) {
-                games = 8;
-            }
-            if (games == 7) {
-                out.println();
-                out.println("Game " + games + ": #" + lower + " " + awayT
-                        + " @ #" + i + " " + homeT);
-                out.print(awayT + ": ");
-                int team2Score = 0;
-                String team2S = in.nextLine();
-                team2Score = parser(team2S, in, out);
-                out.println();
-                out.print(homeT + ": ");
-                int team1Score = 0;
-                String team1S = in.nextLine();
-                team1Score = parser(team1S, in, out);
-
-                while (team2Score == team1Score) {
-                    out.println("Cannot end in tie");
-                    out.println("Game " + games + ": #" + lower + " " + awayT
-                            + " @ #" + i + " " + homeT);
-                    out.print(awayT + ": ");
-                    team2S = in.nextLine();
-                    team2Score = parser(team2S, in, out);
-                    out.println();
-                    out.print(homeT + ": ");
-                    team1S = in.nextLine();
-                    team1Score = parser(team1S, in, out);
-                }
-                if (team2Score > team1Score) {
-                    team2Wins++;
-                } else if (team1Score > team2Score) {
-                    team1Wins++;
-                }
-                out.println();
-                out.println(homeT + " " + team1Wins);
-                out.println(awayT + " " + team2Wins);
-                games++;
-
-            }
-        }
-        if (team1Wins == 4) {
-            out.println(homeT + " wins " + team1Wins + "-" + team2Wins);
-            return i;
-
-        } else {
-            out.println(awayT + " wins " + team2Wins + "-" + team1Wins);
-            return lower;
-
-        }
+        Pair<String, String> ans = new Pair<String, String>(name, action);
+        return ans;
 
     }
 
-    public static ArrayList<Integer> FirstR(Map<Integer, String> seeds,
-            SimpleReader in, SimpleWriter out, String conf) {
-        ArrayList<Integer> winningSeeds = new ArrayList<Integer>();
-        out.println(conf + " conference FIRST ROUND");
-        for (int i = 1; i <= 4; i++) {
-            String team1 = seeds.value(i);
-            int lower = 9 - i;
-            String team2 = seeds.value(lower);
-            int winning = series(i, lower, team1, team2, out, in);
+    //TODO:
+    //      Add  "enters game for"
+    private static void parser(Scanner in, Pair<String, String> action,
+            Set<String> starters, Set<String> scoreTypes, Set<String> turnover,
+            Set<String> fouls, Set<String> team, BufferedWriter out)
+            throws IOException {
+        if (action.getValue().equals("grabs")) { //REBOUNDS
+            System.out.println(
+                    "What kind of rebound did " + action.getKey() + " grab?");
+            String rebound = in.nextLine();
+            while (!rebound.equals("defensive")
+                    && !rebound.equals("offensive")) {
+                System.out.println("Try again: ");
+                rebound = in.nextLine();
+            }
+            out.write(action.getKey() + " " + action.getValue() + " " + rebound
+                    + " rebound\n"); //file output
+        } else if (action.getValue().equals("makes")) { //POINTS
+            System.out.println(
+                    "What kind of point did " + action.getKey() + " score?");
+            String shot = in.nextLine();
+            while (!scoreTypes().contains(shot)) {
+                System.out.println("Re-input shot type");
+                shot = in.nextLine();
+            }
+            if (shot.equals("free throws")) { //FTS
+                System.out.println("How many free throws total is "
+                        + action.getKey() + " is shooting?");
+                int foul = in.nextInt();
+                while (foul != 1 && foul != 2 && foul != 3) {
+                    System.out.println("Try again: ");
+                    foul = in.nextInt();
+                }
+                int i = 1;
+                out.write(action.getKey() + " makes free throw " + i + " of "
+                        + foul + "\n"); //file output
+                while (i < foul) {
+                    i++;
+                    System.out.println("Does " + action.getKey()
+                            + " make or miss free throw " + i);
+                    String ft = in.nextLine();
+                    while (!ft.equals("makes") && !ft.equals("misses")) {
+                        System.out.println("Try again: ");
+                        ft = in.nextLine();
+                    }
+                    out.write(action.getKey() + " " + ft + " free throw " + i
+                            + " of " + foul + "\n"); //file output
+                }
+            } else if (shot.equals("two point shot")) { //2 POINTS
+                System.out.println("What kind of " + shot + " was this?");
+                String twoP = in.nextLine();
+                while (!twoPoint().contains(twoP)) {
+                    System.out.println("Try again: ");
+                    twoP = in.nextLine();
+                }
+                String assist = "";
 
-            winningSeeds.add(0, winning);
+                if (twoP.equals("dunk")) { //DUNK
+                    System.out.println("Was it an alley oop?");
+                    String a = in.nextLine();
+                    while (!a.toLowerCase().equals("yes")
+                            && !a.toLowerCase().equals("no")) {
+                        System.out.println("Try again");
+                        a = in.nextLine();
+                    }
+                    if (a.toLowerCase().equals("yes")) { //ALLEY OOP
+                        System.out.println("Who assisted?");
+                        String player = in.nextLine();
+                        while (!starters.contains(player)) {
+                            System.out.println("Try again");
+                            player = in.nextLine();
+                        }
+                        assist = " (assisted by " + player + ")";
+                        out.write(action.getKey() + " makes alley-oop" + assist
+                                + "\n");
+                    } else {
+                        System.out
+                                .println("How far out was this " + twoP + "?");
+                        int dist = in.nextInt();
+                        while (dist < 0 || dist > 23) {
+                            System.out.println("Try again: ");
+                            dist = in.nextInt();
+                        }
+                        System.out.println("Did anyone assist this bucket?");
+                        String yesNo = in.nextLine();
+                        while (!yesNo.toLowerCase().equals("yes")
+                                && !yesNo.toLowerCase().equals("no")) {
+                            System.out.println("Must be 'yes' or 'no'");
+                            yesNo = in.nextLine();
+                        }
+                        if (yesNo.toLowerCase().equals("yes")) {
+                            System.out.println("Who assisted?");
+                            String player = in.nextLine();
+                            while (!starters.contains(player)) {
+                                System.out.println("Try again");
+                                player = in.nextLine();
+                            }
+                            assist = " (assisted by " + player + ")";
+                            out.write(action.getKey() + " makes " + dist
+                                    + " foot dunk" + assist + "\n");
+                        } else {
+                            out.write(action.getKey() + " makes " + dist
+                                    + " foot dunk" + "\n");
+                        }
+                    }
 
-            out.println();
-        }
-        return winningSeeds;
-    }
+                } else { //2 POINTS NOT A DUNK
+                    System.out.println("How far out was this " + twoP + "?");
+                    int dist = in.nextInt();
+                    while (dist < 0 || dist > 23) {
+                        System.out.println("Try again: ");
+                        dist = in.nextInt();
+                    }
+                    System.out.println("Did anyone assist this bucket?");
+                    String yesNo = in.nextLine();
+                    while (!yesNo.toLowerCase().equals("yes")
+                            && !yesNo.toLowerCase().equals("no")) {
+                        System.out.println("Must be 'yes' or 'no'");
+                        yesNo = in.nextLine();
+                    }
+                    if (yesNo.toLowerCase().equals("yes")) {
+                        System.out.println("Who assisted?");
+                        String player = in.nextLine();
+                        while (!starters.contains(player)) {
+                            System.out.println("Try again");
+                            player = in.nextLine();
+                        }
+                        assist = " (assisted by " + player + ")";
+                    } else {
 
-    public static ArrayList<Integer> SecondR(ArrayList<Integer> firstR,
-            Map<Integer, String> seeds, SimpleReader in, SimpleWriter out,
-            String conf) {
-        ArrayList<Integer> winningSeeds = new ArrayList<Integer>();
-        out.println(conf + " conference SECOND ROUND");
-        for (int i = 0; i <= 1; i++) {
-            int temp1 = firstR.get(i);
-            int temp2 = firstR.get(3 - i);
-            int t1;
-            int t2;
-            if (temp1 < temp2) {
-                t1 = temp1;
-                t2 = temp2;
+                    }
+                    out.write(action.getKey() + " " + action.getValue() + " "
+                            + dist + "-foot " + twoP + assist + "\n"); //file output
+                }
+            } else { //3 POINTER
+                System.out.println("How far out was this three pointer?");
+                int dist = in.nextInt();
+                while (dist >= 95 || dist <= 23) {
+                    System.out.println("Try again: ");
+                    dist = in.nextInt();
+                }
+                System.out.println("Did anyone assist this bucket?");
+                String yesNo = in.nextLine();
+                while (!yesNo.toLowerCase().equals("yes")
+                        && !yesNo.toLowerCase().equals("no")) {
+                    System.out.println("Must be 'yes' or 'no'");
+                    yesNo = in.nextLine();
+                }
+                String assist = "";
+                if (yesNo.toLowerCase().equals("yes")) {
+                    System.out.println("Who assisted?");
+                    String player = in.nextLine();
+                    while (!starters.contains(player)) {
+                        System.out.println("Try again");
+                        player = in.nextLine();
+                    }
+                    assist = " (assisted by " + player + ")";
+                } else {
+
+                }
+                out.write(action.getKey() + " " + action.getValue() + " " + dist
+                        + "-foot three pointer" + assist + "\n"); //file output
+            }
+        } else if (action.getValue().equals("misses")) { //MISSED SHOTS
+            System.out.println(
+                    "What kind of point did " + action.getKey() + " miss?");
+            String shot = in.nextLine();
+            while (!scoreTypes().contains(shot)) {
+                System.out.println("Re-input shot type");
+                shot = in.nextLine();
+            }
+            if (shot.equals("free throws")) { //FREE THROWS
+                System.out.println("How many free throws total is "
+                        + action.getKey() + " is shooting?");
+                int foul = in.nextInt();
+                while (foul != 1 && foul != 2 && foul != 3) {
+                    System.out.println("Try again: ");
+                    foul = in.nextInt();
+                }
+                int i = 1;
+                out.write(action.getKey() + " misses free throw " + i + " of "
+                        + foul + "\n"); //file output
+                while (i < foul) {
+                    i++;
+                    System.out.println("Does " + action.getKey()
+                            + " make or miss free throw " + i);
+                    String ft = in.nextLine();
+                    while (!ft.equals("makes") && !ft.equals("misses")) {
+                        System.out.println("Try again: ");
+                        ft = in.nextLine();
+                    }
+                    out.write(action.getKey() + " " + ft + " free throw " + i
+                            + " of " + foul + "\n"); //file output
+                }
+            } else if (shot.equals("two point shot")) { //TWO POINT SHOT
+                System.out.println("What kind of " + shot + " was this?");
+                String twoP = in.nextLine();
+                while (!twoPoint().contains(twoP)) {
+                    System.out.println("Try again: ");
+                    twoP = in.nextLine();
+                }
+                System.out.println("How far out was this " + twoP + "?");
+                int dist = in.nextInt();
+                while (dist < 0 || dist > 23) {
+                    System.out.println("Try again: ");
+                    dist = in.nextInt();
+                }
+                out.write(action.getKey() + " " + action.getValue() + " " + dist
+                        + "-foot " + twoP + "\n"); //file output
+            } else { //THREES
+                System.out.println("How far out was this three pointer?");
+                int dist = in.nextInt();
+                while (dist >= 95 || dist <= 23) {
+                    System.out.println("Try again: ");
+                    dist = in.nextInt();
+                }
+                out.write(action.getKey() + " " + action.getValue() + " " + dist
+                        + "-foot three pointer \n"); //file output
+            }
+        } else if (action.getValue().equals("steps")) {
+            out.write(action.getKey() + " " + action.getValue()
+                    + " out of bounds. Turnover. \n");
+        } else if (action.getValue().equals("commits")) {
+            System.out.println(
+                    "Did " + action.getKey() + " commit a foul or a turnover?");
+            String commit = in.nextLine();
+            while (!commit.equals("foul") && !commit.equals("turnover")) {
+                System.out.println("Try again: ");
+                commit = in.nextLine();
+            }
+            if (commit.equals("foul")) {
+                System.out.println("What kind of foul did " + action.getKey()
+                        + " commit?");
+                String foul = in.nextLine();
+                while (!fouls.contains(foul)) {
+                    System.out.println("Try again: ");
+                    foul = in.nextLine();
+                }
+                out.write(action.getKey() + " commits " + foul + " foul\n");
             } else {
-                t1 = temp2;
-                t2 = temp1;
+                System.out.println("What kind of turnover did "
+                        + action.getKey() + " commit?");
+                String turn = in.nextLine();
+                while (!turnover.contains(turn)) {
+                    System.out.println("Try again: ");
+                    turn = in.nextLine();
+                }
+                out.write(action.getKey() + " commits " + turn + " turnover\n");
             }
-            String team1 = seeds.value(t1);
-            String team2 = seeds.value(t2);
-
-            int winning = series(t1, t2, team1, team2, out, in);
-            winningSeeds.add(0, winning);
-
-            out.println();
+        } else if (action.getValue().equals("steals")) {
+            out.write(action.getKey() + " steals ball\n");
+        } else if (action.getValue().equals("comes out for")) {
+            String sub = in.nextLine();
+            while (starters.contains(sub) || !team.contains(sub)) {
+                if (starters.contains(sub)) {
+                    System.out.println(
+                            "Cannot come in for already playing player. Try again.");
+                } else {
+                    System.out.println("Player not on roster. Try again.");
+                }
+                sub = in.nextLine();
+            }
+            out.write(action.getKey() + " comes out for " + sub);
+            starters.remove(action.getKey());
+            starters.add(sub);
 
         }
-
-        return winningSeeds;
     }
 
-    public static String Cfinals(ArrayList<Integer> secondR,
-            Map<Integer, String> seeds, SimpleReader in, SimpleWriter out,
-            String conf) {
-        out.println(conf + " conference FINALS");
-        int temp1 = secondR.get(0);
-        int temp2 = secondR.get(1);
-        int t1;
-        int t2;
-        if (temp1 < temp2) {
-            t1 = temp1;
-            t2 = temp2;
-        } else {
-            t1 = temp2;
-            t2 = temp1;
+    public static void main(String[] args) throws IOException {
+        //Pair<String, Integer> p = new Pair("Pistons", 0);
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("Enter file name: ");
+        String file = in.nextLine();
+        while (!file.substring(file.length() - 4).equals(".txt")) {
+            System.out.println("Enter file name: ");
+            file = in.nextLine();
         }
-        String team1 = seeds.value(t1);
-        String team2 = seeds.value(t2);
+        BufferedWriter write = new BufferedWriter(new FileWriter(file));
 
-        int winning = series(t1, t2, team1, team2, out, in);
-
-        return seeds.value(winning);
-
-    }
-
-    public static void Finals(String team1, String team2, SimpleReader in,
-            SimpleWriter out) {
-        out.println("NBA FINALS");
-
-        series(0, 0, team1, team2, out, in);
-
-    }
-
-    public static void main(String[] args) {
-        SimpleReader in = new SimpleReader1L();
-        SimpleWriter out = new SimpleWriter1L();
-        Map<Integer, String> westFR = new Map1L<>();
-        Map<Integer, String> eastFR = new Map1L<>();
-        out.println("Welcome to the NBA Playoff Simulator.");
-        out.println(
-                "Press 1 to choose the Western Conference teams in the playoffs. Press any other key to automatically have the playoffs set");
-        String inp = in.nextLine();
-        if (inp.equals("1")) {
-            out.println("WESTERN CONFERENCE");
-            westFR = chooseWestSeeds(westTeams(), in, out);
-        } else {
-            westFR = autoWestSeeds(westTeams());
+        System.out.println("Enter home team: ");
+        String team1 = in.nextLine();
+        Map<String, Set<String>> rosters = rosters();
+        while (!rosters.keySet().contains(team1)) {
+            System.out.println("Re-input team name: ");
+            team1 = in.nextLine();
         }
-
-        out.println(
-                "Press 1 to choose the Eastern Conference teams in the playoffs. Press any other key to automatically have the playoffs set");
-        String inp2 = in.nextLine();
-        if (inp2.equals("1")) {
-            out.println("EASTERN CONFERENCE");
-            eastFR = chooseEastSeeds(eastTeams(), in, out);
-        } else {
-            eastFR = autoEastSeeds(eastTeams());
+        Set<String> homeTeam = rosters.get(team1);
+        System.out.println(homeTeam);
+        System.out.println("Enter away team: ");
+        String team2 = in.nextLine();
+        while (team2.equals(team1) || !rosters.keySet().contains(team2)) {
+            System.out.println("Re-input team name: ");
+            team2 = in.nextLine();
         }
-        out.println();
+        Set<String> awayTeam = rosters.get(team2);
+        System.out.println(awayTeam);
 
-        ArrayList<Integer> WCSF = FirstR(westFR, in, out, "Western");
-        ArrayList<Integer> ECSF = FirstR(eastFR, in, out, "Eastern");
-        //Collections.sort(WCSF);
-        //Collections.sort(ECSF);
-        out.println("Western Conference Second Round teams: ");
-        for (int a = 0; a < WCSF.size(); a++) {
-            out.println("#" + WCSF.get(a) + " " + westFR.value(WCSF.get(a)));
+        Set<String> verbs = verbs();
+        Set<String> homeStarters = starters(homeTeam, in, team1);
+        Set<String> awayStarters = starters(awayTeam, in, team2);
+        int i = 0;
+        while (i == 0) {
+            System.out.println(
+                    "Type which team just made an action. Otherwise type 'Game Over' to end game");
+            String team = in.nextLine();
+            while (!team.equals(team1) || !team.equals(team2)
+                    || !team.equals("Game Over")) {
+                System.out.println("Not a valid choice");
+                team = in.nextLine();
+            }
+            if (team.equals("Game Over")) {
+                write.write("GAME OVER");
+                i++;
+
+            } else {
+                if (team.equals(team1)) {
+                    Pair<String, String> action = genParser(in, homeStarters,
+                            verbs);
+                    parser(in, action, homeStarters, scoreTypes(), turnovers(),
+                            fouls(), homeTeam, write);
+                } else {
+                    Pair<String, String> action = genParser(in, awayStarters,
+                            verbs);
+                    parser(in, action, awayStarters, scoreTypes(), turnovers(),
+                            fouls(), awayTeam, write);
+                }
+            }
         }
+        write.close();
 
-        out.println("Eastern Conference Second Round teams: ");
-        for (int a = 0; a < ECSF.size(); a++) {
-            out.println("#" + ECSF.get(a) + " " + eastFR.value(ECSF.get(a)));
-        }
-
-        out.println();
-        out.println();
-
-        //CSF
-        // 1 or 8 plays 4 or 5
-        // 2 or 7 plays 3 or 6
-
-        ArrayList<Integer> WCF = SecondR(WCSF, westFR, in, out, "Western");
-        ArrayList<Integer> ECF = SecondR(ECSF, eastFR, in, out, "Eastern");
-
-        out.println("Western Conference Finals teams: ");
-        for (int a = 0; a < WCF.size(); a++) {
-            out.println("#" + WCF.get(a) + " " + westFR.value(WCF.get(a)));
-        }
-
-        out.println("Eastern Conference Second Round teams: ");
-        for (int a = 0; a < ECF.size(); a++) {
-            out.println("#" + ECF.get(a) + " " + eastFR.value(ECF.get(a)));
-        }
-
-        String westFinalsTeam = Cfinals(WCF, westFR, in, out, "Western");
-        String eastFinalsTeam = Cfinals(ECF, eastFR, in, out, "Eastern");
-
-        out.println();
-        int westFinal = westFR.key(westFinalsTeam);
-        int eastFinal = eastFR.key(eastFinalsTeam);
-        out.println("NBA Finals teams:");
-        out.println("#" + westFinal + " " + westFinalsTeam + " vs. #"
-                + eastFinal + " " + eastFinalsTeam);
-
-        String team1;
-        String team2;
-
-        if (eastFinal > westFinal) {
-            team1 = eastFinalsTeam;
-            team2 = westFinalsTeam;
-        } else {
-            team2 = eastFinalsTeam;
-            team1 = westFinalsTeam;
-        }
-
-        Map<Integer, String> totalTeams = new Map1L<>();
-
-        Finals(team1, team2, in, out);
-
-        in.close();
-        out.close();
     }
 
 }
