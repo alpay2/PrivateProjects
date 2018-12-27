@@ -1,11 +1,12 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -19,23 +20,57 @@ import javafx.util.Pair;
  */
 public final class PlayByPlay {
 
-    private static Map<String, String> pistons() {
-        Map<String, String> team = new HashMap<>();
-        String a = "Pistons";
-        team.put("Blake Griffin", a);
-        team.put("Andre Drummond", a);
-        team.put("Reggie Jackson", a);
-        team.put("Reggie Bullock", a);
-        team.put("Glenn Robinson III", a);
-        team.put("Jon Leuer", a);
-        team.put("Stanley Johnson", a);
-        team.put("Zaza Pachulia", a);
-        team.put("Ish Smith", a);
-        team.put("Jose Calderon", a);
-        team.put("Luke Kennard", a);
-        team.put("Bruce Brown", a);
-        team.put("Langston Galloway", a);
-        return team;
+    private static Set<String> teamRoster(String a) throws IOException {
+        File file = new File(a);
+        BufferedReader inF = new BufferedReader(new FileReader(file));
+        Set<String> aff = new HashSet<>();
+        String fa = "";
+        while ((fa = inF.readLine()) != null) {
+            int f = 0;
+            while (fa.charAt(f) == ' '
+                    || (fa.charAt(f) >= 48 && fa.charAt(f) <= 57)) {
+                f++;
+            }
+            aff.add(fa.substring(f));
+        }
+        inF.close();
+        return aff;
+    }
+
+    private static Map<String, Set<String>> rosters() throws IOException {
+        Map<String, Set<String>> a = new HashMap<>();
+        a.put("Detroit Pistons", teamRoster("detroit/pistons.txt"));
+        a.put("Milwaukee Bucks", teamRoster("milwaukee/bucks.txt"));
+        a.put("Cleveland Cavaliers", teamRoster("cleveland/cavaliers.txt"));
+        a.put("Chicago Bulls", teamRoster("chicago/bulls.txt"));
+        a.put("Indiana Pacers", teamRoster("indiana/pacers.txt"));
+        a.put("New York Knicks", teamRoster("newyork/knicks.txt"));
+        a.put("Brooklyn Nets", teamRoster("brooklyn/nets.txt"));
+        a.put("Boston Celtics", teamRoster("boston/celtics.txt"));
+        a.put("Toronto Raptors", teamRoster("toronto/raptors.txt"));
+        a.put("Memphis Grizzlies", teamRoster("memphis/grizzlies.txt"));
+        a.put("Minnesota Timberwolves",
+                teamRoster("minnesota/timberwolves.txt"));
+        a.put("Miami Heat", teamRoster("miami/heat.txt"));
+        a.put("Orlando Magic", teamRoster("orlando/magic.txt"));
+        a.put("New Orleans Pelicans", teamRoster("neworleans/pelicans.txt"));
+        a.put("Charlotte Hornets", teamRoster("charlotte/hornets.txt"));
+        a.put("Houston Rockets", teamRoster("houston/rockets.txt"));//16
+        a.put("Dallas Mavericks", teamRoster("dallas/mavericks.txt"));
+        a.put("San Antonio Spurs", teamRoster("sanantonio/spurs.txt"));
+        a.put("Atlanta Hawks", teamRoster("atlanta/hawks.txt"));
+        a.put("Oklahoma City Thunder", teamRoster("oklahomacity/thunder.txt")); //20
+        a.put("Phoenix Suns", teamRoster("phoenix/suns.txt"));
+        a.put("Utah Jazz", teamRoster("utah/jazz.txt"));
+        a.put("Denver Nuggets", teamRoster("denver/nuggets.txt"));
+        a.put("Los Angeles Lakers", teamRoster("losangelesL/lakers.txt"));
+        a.put("Los Angeles Clippers", teamRoster("losangelesC/clippers.txt"));
+        a.put("Golden State Warriors", teamRoster("goldenstate/warriors.txt")); //26
+        a.put("Sacramento Kings", teamRoster("sacramento/kings.txt"));
+        a.put("Portland Trailblazers", teamRoster("portland/trailblazers.txt"));
+        a.put("Philadelphia 76ers", teamRoster("philadelphia/76ers.txt"));
+        a.put("Washington Wizards", teamRoster("washington/wizards.txt"));
+        return a;
     }
 
     private static Set<String> fouls() {
@@ -51,14 +86,6 @@ public final class PlayByPlay {
         return f;
     }
 
-    private static Queue<Integer> foulShot() {
-        Queue<Integer> q = new LinkedList<Integer>();
-        q.add(3);
-        q.add(2);
-        q.add(1);
-        return q;
-    }
-
     private static Set<String> twoPoint() {
         Set<String> f = new HashSet<>();
         f.add("dunk"); //alley-oop
@@ -72,12 +99,12 @@ public final class PlayByPlay {
 
     private static Set<String> turnovers() {
         Set<String> f = new HashSet<>();
-        f.add("out of bounds");
         f.add("offensive three seconds"); //technical FT
         f.add("traveling violation");
         f.add("double dribble violation");
         f.add("carrying violation");
-        f.add("turnover"); //<opponent player> steals
+        f.add("bad pass");
+        f.add("loses ball");
         f.add("offensive foul"); //charging or illegal screen
         return f;
     }
@@ -103,14 +130,17 @@ public final class PlayByPlay {
         return f;
     }
 
-    private static Set<String> starters(Set<String> roster, Scanner in) {
+    private static Set<String> starters(Set<String> roster, Scanner in,
+            String team) {
         Set<String> start = new HashSet<>();
         int i = 0;
         while (i < 5) {
-            System.out.println("Who is starter " + (i + 1));
+            System.out
+                    .println("Who is starter " + (i + 1) + " for the " + team);
             String starter = in.nextLine();
             while (!roster.contains(starter) || start.contains(starter)) {
-                System.out.println("Try again. Who is starter " + (i + 1));
+                System.out.println("Try again. Who is starter " + (i + 1)
+                        + " for the " + team);
                 starter = in.nextLine();
             }
             start.add(starter);
@@ -121,54 +151,50 @@ public final class PlayByPlay {
 
     private static Pair<String, String> genParser(Scanner in, Set<String> team,
             Set<String> verbs) {
-        System.out.println(
-                "Type 'name' to keep writing plays or 'game over' to finsih");
+        System.out.println("Type 'name' to write the play");
         String choice = in.nextLine();
-        while (!choice.equals("name") && !choice.equals("game over")) {
-            System.out.println(
-                    "Type 'name' to keep writing plays or 'game over' to finsih");
+        while (!choice.equals("name")) {
+            System.out.println("Type 'name' to write the play");
             choice = in.nextLine();
         }
-        if (choice.equals("name")) {
-            System.out.println("Name: ");
-            String name = in.nextLine();
-            while (!team.contains(name)) {
-                System.out.println("Use a valid player");
-                name = in.nextLine();
-            }
-            System.out.println("Action: ");
-            String action = in.nextLine();
-            while (!verbs.contains(action)) {
-                System.out.println("Use a valid action");
-                action = in.nextLine();
-            }
-            Pair<String, String> ans = new Pair<String, String>(name, action);
-            return ans;
-        } else {
-            Pair<String, String> ans = new Pair<String, String>("", "");
-            return ans;
+
+        System.out.println("Name: ");
+        String name = in.nextLine();
+        while (!team.contains(name)) {
+            System.out.println("Use a valid player");
+            name = in.nextLine();
         }
+        System.out.println("Action: ");
+        String action = in.nextLine();
+        while (!verbs.contains(action)) {
+            System.out.println("Use a valid action");
+            action = in.nextLine();
+        }
+        Pair<String, String> ans = new Pair<String, String>(name, action);
+        return ans;
+
     }
 
-    //TODO: Add assists clause to made shots
-    //      Add "commits", "steps", "enters game for", "steals", turnovers
-    private static void parser(Scanner in, Pair<String, String> action,
-            Set<String> team, Set<String> scoreTypes, Set<String> turnover,
-            Set<String> fouls, BufferedWriter out) throws IOException {
-        if (action.getValue().equals("grabs")) { //REBOUNDS
+    //TODO:
+    //      Add  "enters game for"
+    private static void parser(Scanner in, Pair<String, String> play,
+            Set<String> starters, Set<String> scoreTypes, Set<String> turnover,
+            Set<String> fouls, Set<String> team, BufferedWriter out)
+            throws IOException {
+        if (play.getValue().equals("grabs")) { //REBOUNDS
             System.out.println(
-                    "What kind of rebound did " + action.getKey() + " grab?");
+                    "What kind of rebound did " + play.getKey() + " grab?");
             String rebound = in.nextLine();
             while (!rebound.equals("defensive")
                     && !rebound.equals("offensive")) {
                 System.out.println("Try again: ");
                 rebound = in.nextLine();
             }
-            out.write(action.getKey() + " " + action.getValue() + " " + rebound
+            out.write(play.getKey() + " " + play.getValue() + " " + rebound
                     + " rebound\n"); //file output
-        } else if (action.getValue().equals("makes")) { //POINTS
+        } else if (play.getValue().equals("makes")) { //POINTS
             System.out.println(
-                    "What kind of point did " + action.getKey() + " score?");
+                    "What kind of point did " + play.getKey() + " score?");
             String shot = in.nextLine();
             while (!scoreTypes().contains(shot)) {
                 System.out.println("Re-input shot type");
@@ -176,25 +202,25 @@ public final class PlayByPlay {
             }
             if (shot.equals("free throws")) { //FTS
                 System.out.println("How many free throws total is "
-                        + action.getKey() + " is shooting?");
+                        + play.getKey() + " is shooting?");
                 int foul = in.nextInt();
                 while (foul != 1 && foul != 2 && foul != 3) {
                     System.out.println("Try again: ");
                     foul = in.nextInt();
                 }
                 int i = 1;
-                out.write(action.getKey() + " makes free throw " + i + " of "
+                out.write(play.getKey() + " makes free throw " + i + " of "
                         + foul + "\n"); //file output
                 while (i < foul) {
                     i++;
-                    System.out.println("Does " + action.getKey()
+                    System.out.println("Does " + play.getKey()
                             + " make or miss free throw " + i);
                     String ft = in.nextLine();
                     while (!ft.equals("makes") && !ft.equals("misses")) {
                         System.out.println("Try again: ");
                         ft = in.nextLine();
                     }
-                    out.write(action.getKey() + " " + ft + " free throw " + i
+                    out.write(play.getKey() + " " + ft + " free throw " + i
                             + " of " + foul + "\n"); //file output
                 }
             } else if (shot.equals("two point shot")) { //2 POINTS
@@ -217,11 +243,13 @@ public final class PlayByPlay {
                     if (a.toLowerCase().equals("yes")) { //ALLEY OOP
                         System.out.println("Who assisted?");
                         String player = in.nextLine();
-                        while (!team.contains(player)) {
+                        while (!starters.contains(player)) {
                             System.out.println("Try again");
                             player = in.nextLine();
                         }
                         assist = " (assisted by " + player + ")";
+                        out.write(play.getKey() + " makes alley-oop" + assist
+                                + "\n");
                     } else {
                         System.out
                                 .println("How far out was this " + twoP + "?");
@@ -240,13 +268,16 @@ public final class PlayByPlay {
                         if (yesNo.toLowerCase().equals("yes")) {
                             System.out.println("Who assisted?");
                             String player = in.nextLine();
-                            while (!team.contains(player)) {
+                            while (!starters.contains(player)) {
                                 System.out.println("Try again");
                                 player = in.nextLine();
                             }
                             assist = " (assisted by " + player + ")";
+                            out.write(play.getKey() + " makes " + dist
+                                    + " foot dunk" + assist + "\n");
                         } else {
-
+                            out.write(play.getKey() + " makes " + dist
+                                    + " foot dunk" + "\n");
                         }
                     }
 
@@ -267,7 +298,7 @@ public final class PlayByPlay {
                     if (yesNo.toLowerCase().equals("yes")) {
                         System.out.println("Who assisted?");
                         String player = in.nextLine();
-                        while (!team.contains(player)) {
+                        while (!starters.contains(player)) {
                             System.out.println("Try again");
                             player = in.nextLine();
                         }
@@ -275,8 +306,8 @@ public final class PlayByPlay {
                     } else {
 
                     }
-                    out.write(action.getKey() + " " + action.getValue() + " "
-                            + dist + "-foot " + twoP + assist + "\n"); //file output
+                    out.write(play.getKey() + " " + play.getValue() + " " + dist
+                            + "-foot " + twoP + assist + "\n"); //file output
                 }
             } else { //3 POINTER
                 System.out.println("How far out was this three pointer?");
@@ -296,7 +327,7 @@ public final class PlayByPlay {
                 if (yesNo.toLowerCase().equals("yes")) {
                     System.out.println("Who assisted?");
                     String player = in.nextLine();
-                    while (!team.contains(player)) {
+                    while (!starters.contains(player)) {
                         System.out.println("Try again");
                         player = in.nextLine();
                     }
@@ -304,12 +335,12 @@ public final class PlayByPlay {
                 } else {
 
                 }
-                out.write(action.getKey() + " " + action.getValue() + " " + dist
+                out.write(play.getKey() + " " + play.getValue() + " " + dist
                         + "-foot three pointer" + assist + "\n"); //file output
             }
-        } else if (action.getValue().equals("misses")) { //MISSED SHOTS
+        } else if (play.getValue().equals("misses")) { //MISSED SHOTS
             System.out.println(
-                    "What kind of point did " + action.getKey() + " miss?");
+                    "What kind of point did " + play.getKey() + " miss?");
             String shot = in.nextLine();
             while (!scoreTypes().contains(shot)) {
                 System.out.println("Re-input shot type");
@@ -317,25 +348,25 @@ public final class PlayByPlay {
             }
             if (shot.equals("free throws")) { //FREE THROWS
                 System.out.println("How many free throws total is "
-                        + action.getKey() + " is shooting?");
+                        + play.getKey() + " is shooting?");
                 int foul = in.nextInt();
                 while (foul != 1 && foul != 2 && foul != 3) {
                     System.out.println("Try again: ");
                     foul = in.nextInt();
                 }
                 int i = 1;
-                out.write(action.getKey() + " misses free throw " + i + " of "
+                out.write(play.getKey() + " misses free throw " + i + " of "
                         + foul + "\n"); //file output
                 while (i < foul) {
                     i++;
-                    System.out.println("Does " + action.getKey()
+                    System.out.println("Does " + play.getKey()
                             + " make or miss free throw " + i);
                     String ft = in.nextLine();
                     while (!ft.equals("makes") && !ft.equals("misses")) {
                         System.out.println("Try again: ");
                         ft = in.nextLine();
                     }
-                    out.write(action.getKey() + " " + ft + " free throw " + i
+                    out.write(play.getKey() + " " + ft + " free throw " + i
                             + " of " + foul + "\n"); //file output
                 }
             } else if (shot.equals("two point shot")) { //TWO POINT SHOT
@@ -351,7 +382,7 @@ public final class PlayByPlay {
                     System.out.println("Try again: ");
                     dist = in.nextInt();
                 }
-                out.write(action.getKey() + " " + action.getValue() + " " + dist
+                out.write(play.getKey() + " " + play.getValue() + " " + dist
                         + "-foot " + twoP + "\n"); //file output
             } else { //THREES
                 System.out.println("How far out was this three pointer?");
@@ -360,18 +391,61 @@ public final class PlayByPlay {
                     System.out.println("Try again: ");
                     dist = in.nextInt();
                 }
-                out.write(action.getKey() + " " + action.getValue() + " " + dist
+                out.write(play.getKey() + " " + play.getValue() + " " + dist
                         + "-foot three pointer \n"); //file output
             }
-        } else if (action.getValue().equals("steps")) {
-
-        } else if (action.getValue().equals("commits")) {
+        } else if (play.getValue().equals("steps")) {
+            out.write(play.getKey() + " " + play.getValue()
+                    + " out of bounds. Turnover. \n");
+        } else if (play.getValue().equals("commits")) {
+            System.out.println(
+                    "Did " + play.getKey() + " commit a foul or a turnover?");
+            String commit = in.nextLine();
+            while (!commit.equals("foul") && !commit.equals("turnover")) {
+                System.out.println("Try again: ");
+                commit = in.nextLine();
+            }
+            if (commit.equals("foul")) {
+                System.out.println(
+                        "What kind of foul did " + play.getKey() + " commit?");
+                String foul = in.nextLine();
+                while (!fouls.contains(foul)) {
+                    System.out.println("Try again: ");
+                    foul = in.nextLine();
+                }
+                out.write(play.getKey() + " commits " + foul + " foul\n");
+            } else {
+                System.out.println("What kind of turnover did " + play.getKey()
+                        + " commit?");
+                String turn = in.nextLine();
+                while (!turnover.contains(turn)) {
+                    System.out.println("Try again: ");
+                    turn = in.nextLine();
+                }
+                out.write(play.getKey() + " commits " + turn + " turnover\n");
+            }
+        } else if (play.getValue().equals("steals")) {
+            out.write(play.getKey() + " steals ball\n");
+        } else if (play.getValue().equals("comes out for")) {
+            String sub = in.nextLine();
+            while (starters.contains(sub) || !team.contains(sub)) {
+                if (starters.contains(sub)) {
+                    System.out.println(
+                            "Cannot come in for already playing player. Try again.");
+                } else {
+                    System.out.println("Player not on roster. Try again.");
+                }
+                sub = in.nextLine();
+            }
+            out.write(play.getKey() + " comes out for " + sub);
+            starters.remove(play.getKey());
+            starters.add(sub);
 
         }
     }
 
     public static void main(String[] args) throws IOException {
-        Pair<String, Integer> p = new Pair("Pistons", 0);
+        //Pair<String, Integer> p = new Pair("Pistons", 0);
         Scanner in = new Scanner(System.in);
 
         System.out.println("Enter file name: ");
@@ -381,20 +455,57 @@ public final class PlayByPlay {
             file = in.nextLine();
         }
         BufferedWriter write = new BufferedWriter(new FileWriter(file));
-        Map<String, String> team = pistons();
-        Set<String> keySet = team.keySet();
+
+        System.out.println("Enter home team: ");
+        String team1 = in.nextLine();
+        Map<String, Set<String>> rosters = rosters();
+        while (!rosters.keySet().contains(team1)) {
+            System.out.println("Re-input team name: ");
+            team1 = in.nextLine();
+        }
+        Set<String> homeTeam = rosters.get(team1);
+        System.out.println(homeTeam);
+        System.out.println("Enter away team: ");
+        String team2 = in.nextLine();
+        while (team2.equals(team1) || !rosters.keySet().contains(team2)) {
+            System.out.println("Re-input team name: ");
+            team2 = in.nextLine();
+        }
+        Set<String> awayTeam = rosters.get(team2);
+        System.out.println(awayTeam);
+
         Set<String> verbs = verbs();
-        Set<String> starters = starters(keySet, in);
+        System.out.println();
+        Set<String> homeStarters = starters(homeTeam, in, team1);
+        System.out.println();
+        Set<String> awayStarters = starters(awayTeam, in, team2);
+        System.out.println();
         int i = 0;
         while (i == 0) {
-            Pair<String, String> action = genParser(in, starters, verbs);
-            if (action.getKey().equals("")) {
+            System.out.println(
+                    "Type which team just made an action. Otherwise type 'Game Over' to end game");
+            String team = in.nextLine();
+            while (!team.equals(team1) && !team.equals(team2)
+                    && !team.equals("Game Over")) {
+                System.out.println("Not a valid choice");
+                team = in.nextLine();
+            }
+            if (team.equals("Game Over")) {
                 write.write("GAME OVER");
                 i++;
-            } else {
-                parser(in, action, keySet, scoreTypes(), turnovers(), fouls(),
-                        write);
 
+            } else {
+                if (team.equals(team1)) {
+                    Pair<String, String> action = genParser(in, homeStarters,
+                            verbs);
+                    parser(in, action, homeStarters, scoreTypes(), turnovers(),
+                            fouls(), homeTeam, write);
+                } else {
+                    Pair<String, String> action = genParser(in, awayStarters,
+                            verbs);
+                    parser(in, action, awayStarters, scoreTypes(), turnovers(),
+                            fouls(), awayTeam, write);
+                }
             }
         }
         write.close();
