@@ -151,13 +151,6 @@ public final class PlayByPlay {
 
     private static Pair<String, String> genParser(Scanner in, Set<String> team,
             Set<String> verbs) {
-        System.out.println("Type 'name' to write the play");
-        String choice = in.nextLine();
-        while (!choice.equals("name")) {
-            System.out.println("Type 'name' to write the play");
-            choice = in.nextLine();
-        }
-
         System.out.println("Name: ");
         String name = in.nextLine();
         while (!team.contains(name)) {
@@ -175,15 +168,13 @@ public final class PlayByPlay {
 
     }
 
-    //TODO:
-    //      Add  "enters game for"
     private static void parser(Scanner in, Pair<String, String> play,
             Set<String> starters, Set<String> scoreTypes, Set<String> turnover,
             Set<String> fouls, Set<String> team, BufferedWriter out)
             throws IOException {
         if (play.getValue().equals("grabs")) { //REBOUNDS
-            System.out.println(
-                    "What kind of rebound did " + play.getKey() + " grab?");
+            System.out.println("What kind of rebound did " + play.getKey()
+                    + " grab(must be offensive or defensive) ?");
             String rebound = in.nextLine();
             while (!rebound.equals("defensive")
                     && !rebound.equals("offensive")) {
@@ -193,8 +184,8 @@ public final class PlayByPlay {
             out.write(play.getKey() + " " + play.getValue() + " " + rebound
                     + " rebound\n"); //file output
         } else if (play.getValue().equals("makes")) { //POINTS
-            System.out.println(
-                    "What kind of point did " + play.getKey() + " score?");
+            System.out.println("What kind of point did " + play.getKey()
+                    + " score? (must be 'free throws', 'two point shot' or 'three point shot')");
             String shot = in.nextLine();
             while (!scoreTypes().contains(shot)) {
                 System.out.println("Re-input shot type");
@@ -339,8 +330,8 @@ public final class PlayByPlay {
                         + "-foot three pointer" + assist + "\n"); //file output
             }
         } else if (play.getValue().equals("misses")) { //MISSED SHOTS
-            System.out.println(
-                    "What kind of point did " + play.getKey() + " miss?");
+            System.out.println("What kind of point did " + play.getKey()
+                    + " miss?('free throws', 'two point shot', or 'three point shot')");
             String shot = in.nextLine();
             while (!scoreTypes().contains(shot)) {
                 System.out.println("Re-input shot type");
@@ -408,6 +399,11 @@ public final class PlayByPlay {
             if (commit.equals("foul")) {
                 System.out.println(
                         "What kind of foul did " + play.getKey() + " commit?");
+                System.out.print("Must be ");
+                for (String f : fouls) {
+                    System.out.print(f + " ");
+                }
+                System.out.println();
                 String foul = in.nextLine();
                 while (!fouls.contains(foul)) {
                     System.out.println("Try again: ");
@@ -417,6 +413,11 @@ public final class PlayByPlay {
             } else {
                 System.out.println("What kind of turnover did " + play.getKey()
                         + " commit?");
+                System.out.println("Must be ");
+                for (String t : turnover) {
+                    System.out.print(t + " ");
+                }
+                System.out.println();
                 String turn = in.nextLine();
                 while (!turnover.contains(turn)) {
                     System.out.println("Try again: ");
